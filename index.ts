@@ -16,7 +16,7 @@ const processMessage = (message:string, context:Context) => {
 
     switch (list[0]) {
         case 'Trenes':
-            return context.reply('Tan todos cortados')            
+            return context.reply('Tan todos cortados')
         case 'Pago':
             if (!list[1] || !list[2]) return context.reply('Lo escribiste mal')
             addTransaction(Collection.payments, {
@@ -26,19 +26,37 @@ const processMessage = (message:string, context:Context) => {
                 from: 'me',
                 to: list[2]
             })
-            const suma = store.database[Collection.payments].reduce((acc, curr) => curr.amount + acc, 0)
-            return context.reply(`Guardado.\nLlevas gastando $${suma}`)       
+            const pagosTotal = store.database[Collection.payments].reduce((acc, curr) => curr.amount + acc, 0)
+            return context.reply(`👍.\nLlevas gastando $${pagosTotal}`)
         case 'Debo':
-            if (!list[1] || !list[2]) {
-                return context.reply('Lo escribiste mal')                
-            }
-            return context.reply(`Debo $${list[1]} a ${list[2]}`)            
+            if (!list[1] || !list[2]) return context.reply('Lo escribiste mal')
+            addTransaction(Collection.my_debts, {
+                amount: parseInt(list[1]),
+                date: new Date(),
+                debt: true,
+                from: 'me',
+                to: list[2]
+            })
+            const deboTotal = store.database[Collection.my_debts].reduce((acc, curr) => curr.amount + acc, 0)
+            return context.reply(`👍.\nDebes $${deboTotal}`)
+        case 'Deben':
+            if (!list[1] || !list[2]) return context.reply('Lo escribiste mal')
+            addTransaction(Collection.others_debts, {
+                amount: parseInt(list[1]),
+                date: new Date(),
+                debt: true,
+                from: list[2],
+                to: 'me'
+            })
+            const debenTotal = store.database[Collection.others_debts].reduce((acc, curr) => curr.amount + acc, 0)
+            return context.reply(`👍.\nTe deben $${debenTotal}`)
         default:
             return context.reply('No conozco')
     }
 }
 
 bot.start((context) => {
+    if (store.running) return context.reply('Ya esta iniciado')
     store.running = true
     start()
 
