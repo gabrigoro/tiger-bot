@@ -24,7 +24,7 @@ export const start = () => {
 }
 
 const saveDatabase = () => {
-    log('saving database')
+    log('Saving...')
     try {
         fs.writeFileSync('./database.json', JSON.stringify(store.database), 'utf-8')
     } catch (err) {
@@ -35,6 +35,7 @@ const saveDatabase = () => {
 export const getList = (name:Collection) => store.database[name]
 
 export const addTransaction = (collection:Collection, transaction:Transaction) => {
+    log('Adding transaction of ' + transaction.amount)
     store.database[collection].push(transaction)
     saveDatabase()
 }

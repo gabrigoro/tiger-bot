@@ -19,7 +19,15 @@ const processMessage = (message:string, context:Context) => {
             return context.reply('Tan todos cortados')            
         case 'Pago':
             if (!list[1] || !list[2]) return context.reply('Lo escribiste mal')
-            return context.reply(`$${list[1]} debido a ${list[2]}`)            
+            addTransaction(Collection.payments, {
+                amount: parseInt(list[1]),
+                date: new Date(),
+                debt: false,
+                from: 'me',
+                to: list[2]
+            })
+            const suma = store.database[Collection.payments].reduce((acc, curr) => curr.amount + acc, 0)
+            return context.reply(`Guardado.\nLlevas gastando $${suma}`)       
         case 'Debo':
             if (!list[1] || !list[2]) {
                 return context.reply('Lo escribiste mal')                
@@ -33,14 +41,6 @@ const processMessage = (message:string, context:Context) => {
 bot.start((context) => {
     store.running = true
     start()
-    
-    addTransaction(Collection.payments, {
-        amount: 100,
-        date: new Date(),
-        debt: false,
-        from: 'me',
-        to: 'somebody'
-    })
 
     context.reply('Inicio intervalo')
     setInterval(() => {
