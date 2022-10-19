@@ -1,15 +1,14 @@
 import { Telegraf, Context } from 'telegraf'
 import fetch from 'node-fetch'
-import store from './store'
+import store, { Collection } from './store'
 import dotenv from 'dotenv'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { start } from './database'
+import { addTransaction, start } from './database'
 dotenv.config()
 
 const MINUTO = 60000
 const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN || '')
 
-start()
 
 const processMessage = (message:string, context:Context) => {
     if (!store.running) return context.reply('Deberias iniciar la app con /start')
@@ -33,6 +32,16 @@ const processMessage = (message:string, context:Context) => {
 
 bot.start((context) => {
     store.running = true
+    start()
+    
+    addTransaction(Collection.payments, {
+        amount: 100,
+        date: new Date(),
+        debt: false,
+        from: 'me',
+        to: 'somebody'
+    })
+
     context.reply('Inicio intervalo')
     setInterval(() => {
         const date = new Date()
