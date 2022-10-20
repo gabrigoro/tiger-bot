@@ -19,12 +19,14 @@ export interface Database {
 }
 
 export interface Store {
+    testing: boolean
     running: boolean
     database: Database
 }
 
 const store:Store = {
     running: false,
+    testing: Boolean(process.env.TESTING),
     database: {
         [Collection.payments]: [],
         [Collection.my_debts]: [],
