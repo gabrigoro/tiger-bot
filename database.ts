@@ -54,3 +54,7 @@ export const getDebtsToPerson = (name:string):number => {
 export const getDebtsFromPerson = (name:string):number => {
     return getDebts(Collection.others_debts, 'from', name)
 }
+
+export const getTotalPayments = ():number => {
+    return store.database[Collection.payments].reduce((acc, curr) => curr.amount + acc, 0)
+}

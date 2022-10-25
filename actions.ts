@@ -1,18 +1,18 @@
 import { Context } from "telegraf"
-import { addTransaction, getDebtsToPerson } from "./database"
+import { addTransaction, getDebtsToPerson, getTotalPayments } from "./database"
 import store, { Collection, Transaction } from "./store"
 
 
-export const processMessage = (message:string, context:Context) => {
-    if (!store.running) return context.reply('Deberias iniciar la app con /start')
+export const processMessage = (message:string, reply:(txt:string)=>void) => {
+    if (!store.running && !Boolean(process.env.TESTING)) return reply('Deberias iniciar la app con /start')
     const list = message.split(' ')
     const [ , monto, detalle ] = list
 
     const common = {
-        Trenes: () => context.reply('Tan todos cortados'),
+        Trenes: () => reply('Tan todos cortados'),
 
         Pago: () => {
-            if (!monto || !detalle) return context.reply('Pago <monto> <detalle>')
+            if (!monto || !detalle) return reply('Pago <monto> <detalle>')
             addTransaction(Collection.payments, {
                 amount: parseInt(monto),
                 date: new Date(),
@@ -20,12 +20,12 @@ export const processMessage = (message:string, context:Context) => {
                 from: 'me',
                 to: detalle
             })
-            const pagosTotal = store.database[Collection.payments].reduce((acc, curr) => curr.amount + acc, 0)
-            return context.reply(`👍\nLlevas gastando $${pagosTotal}`)
+            const pagosTotal = getTotalPayments()
+            return reply(`👍\nLlevas gastando $${pagosTotal}`)
         },
 
         Debo: () => {
-            if (!monto || !detalle) return context.reply('Debo <monto> <sujeto>')
+            if (!monto || !detalle) return reply('Debo <monto> <sujeto>')
             addTransaction(Collection.my_debts, {
                 amount: parseInt(monto),
                 date: new Date(),
@@ -34,11 +34,11 @@ export const processMessage = (message:string, context:Context) => {
                 to: detalle
             })
             const deboTotal = store.database[Collection.my_debts].reduce((acc, curr) => curr.amount + acc, 0)
-            return context.reply(`👍\nDebes $${deboTotal}`)
+            return reply(`👍\nDebes $${deboTotal}`)
         },
 
         Deben: () => {
-            if (!monto || !detalle) return context.reply('Deben <monto> <sujeto>')
+            if (!monto || !detalle) return reply('Deben <monto> <sujeto>')
             addTransaction(Collection.others_debts, {
                 amount: parseInt(monto),
                 date: new Date(),
@@ -47,11 +47,11 @@ export const processMessage = (message:string, context:Context) => {
                 to: 'me'
             })
             const debenTotal = store.database[Collection.others_debts].reduce((acc, curr) => curr.amount + acc, 0)
-            return context.reply(`👍\nTe deben $${debenTotal}`)
+            return reply(`👍\nTe deben $${debenTotal}`)
         },
 
         Saldo: () => {
-            if (!monto || !detalle) return context.reply('Saldo <monto> <sujeto>')
+            if (!monto || !detalle) return reply('Saldo <monto> <sujeto>')
             const totalDebt = getDebtsToPerson(detalle)
             addTransaction(Collection.payments, {
                 amount: parseInt(monto),
@@ -75,10 +75,10 @@ export const processMessage = (message:string, context:Context) => {
         case 'Deben':
             return common.Deben()
         case 'Saldo':
-            return context.reply('Saldaste nosecuanto')
+            return reply('Saldaste nosecuanto')
         case 'Saldan':
-            return context.reply('Saldaron nosecuanto')
+            return reply('Saldaron nosecuanto')
         default:
-            return context.reply('No conozco')
+            return reply('No conozco')
     }
 }

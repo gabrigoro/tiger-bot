@@ -25,7 +25,7 @@ bot.start((context) => {
     }, MINUTO)
 })
 bot.on('sticker', ctx => ctx.reply('No me envies stickers no los entiendo'))
-bot.on('text', (ctx) => processMessage(ctx.message.text, ctx))
+bot.on('text', (ctx) => processMessage(ctx.message.text, (txt) => {ctx.reply(txt)}))
 bot.launch().then(() => console.log('Bot launched'))
 
 // Enable graceful stop
