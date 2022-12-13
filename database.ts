@@ -5,7 +5,7 @@ const filename = store.testing ? './test-database.json' : './database.json'
 
 export const start = () => {
     log('Starting database')
-    if (fs.existsSync(filename) || !store.testing) {
+    if (fs.existsSync(filename)) {
         log('Reading existing database')
         const file = fs.readFileSync(filename, 'utf-8')
         try {
