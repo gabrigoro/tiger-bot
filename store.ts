@@ -1,8 +1,4 @@
-export enum Collection {
-    payments = 'payments',
-    my_debts = 'my_debts',
-    others_debts = 'others_debts'
-}
+import { OperationType } from "./enum"
 
 export interface Transaction {
     amount: number
@@ -13,9 +9,9 @@ export interface Transaction {
 }
 
 export interface Database {
-    [Collection.payments]: Transaction[]
-    [Collection.my_debts]: Transaction[]
-    [Collection.others_debts]: Transaction[]
+    [OperationType.Payment]: Transaction[]
+    [OperationType.Debt]: Transaction[]
+    [OperationType.Owe]: Transaction[]
 }
 
 export interface Store {
@@ -28,9 +24,9 @@ const store:Store = {
     running: false,
     testing: Boolean(process.env.TESTING),
     database: {
-        [Collection.payments]: [],
-        [Collection.my_debts]: [],
-        [Collection.others_debts]: []
+        [OperationType.Payment]: [],
+        [OperationType.Debt]: [],
+        [OperationType.Owe]: []
     }
 }
 
