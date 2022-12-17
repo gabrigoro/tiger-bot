@@ -5,4 +5,12 @@ export enum OperationType {
 	Plan = 'plan'
 }
 
+export interface Transaction {
+	amount: number
+	from: string
+	to: string
+	debt: boolean
+	date: string
+}
+
 export const MINUTE = 60000

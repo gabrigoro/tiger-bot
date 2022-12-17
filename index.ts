@@ -2,32 +2,47 @@ import { Telegraf, Context, Markup } from 'telegraf'
 import fetch from 'node-fetch'
 import store from './store'
 import dotenv from 'dotenv'
-import { Update } from 'telegraf/typings/core/types/typegram'
+import { ForceReply, Update } from 'telegraf/typings/core/types/typegram'
 import { addTransaction, start } from './database'
 import { processMessage } from './actions'
 import { OperationType, MINUTE } from './enum'
-import { getStep, increaseStep, newOperation, resetStep } from './operation'
+import { getAmount, getStep, increaseStep, isCurrentStep, newOperation, resetStep, setAmount } from './operation'
 dotenv.config()
 
 if (!process.env.BOT_TOKEN) throw 'Bot token requerido'
 
 const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN)
 
-
-bot.start(async (context) => {
-    if (store.running) return context.reply('Ya esta iniciado')
+bot.start(async (ctx) => {
+    console.log(ctx.chat.id)
+    if (store.running) return ctx.reply('Ya esta iniciado')
     store.running = true
     start()
     
-    context.reply('Inicio intervalo')
+    ctx.reply('Inicio intervalo')
 
     setInterval(() => {
         const date = new Date()
         const hours = date.getHours()
         const minute = date.getMinutes()
-        if (hours === 9 && minute === 0) context.reply('Ayer gastaste...')
+        if (hours === 9 && minute === 0) ctx.reply('Ayer gastaste...')
     }, MINUTE)
 })
+
+bot.help((ctx) => {
+    ctx.reply('Nada de ayuda por ahora')
+})
+
+bot.settings((ctx) => {
+    ctx.reply('Ninguna configuracion por ahora')
+})
+
+/**
+ * Enviar un mensaje a cierto chat.
+ * Deberia guardar todos los chats ids en la base
+ * y con un for loop crear un broadcast.
+ */
+bot.telegram.sendMessage(1174794170, 'text').then(e=>e).catch(() => {})
 
 bot.command('pago', (ctx) => {
     newOperation(OperationType.Payment)
@@ -37,11 +52,7 @@ bot.command('pago', (ctx) => {
         callback_data: 'fulano'
     }
 
-    ctx.reply('Elegir la categoria del pago', {
-        reply_markup: {
-            inline_keyboard: [[fran, fran,fran]],
-        }
-    })
+    ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard([[fran,fran,fran]]))
 })
 
 bot.on('callback_query', async (ctx) => {
@@ -49,45 +60,41 @@ bot.on('callback_query', async (ctx) => {
 
     if (data === 'fulano') {
         increaseStep()
-        return ctx.reply('Que monto pagaste?', {
-            reply_markup: {
-                force_reply: true,
-                one_time_keyboard: true,
-            }
-        })
+        return ctx.reply('Que monto pagaste?', Markup.forceReply())
     }
     
-    if (data === 'guardar') return ctx.reply('💸')
+    /** Guardar en base de datos */
+    if (data === 'guardar') {
+        /*
+        guardar().then(() => {
+            return ctx.reply('💸')
+        }).catch((reason) => {
+            ctx.reply(reason === 'timeout' ? 'Tiempo de espera agotado' : 'Hubo un error')
+        })
+        */
+        return ctx.reply('💸')
+    }
 })
 
-let amount = 0
-let target = ''
-
 bot.on('text', (ctx) => {
-    const { text, reply_to_message } = ctx.message
+    const { text } = ctx.message
 
-    if (getStep() === 1) {
+    /** Obtener monto del pago */
+    if (isCurrentStep(1)) {
         increaseStep()
-        amount = parseInt(text) || 0
-        return ctx.reply('Destino?', {
-            reply_markup: {
-                force_reply: true,
-                one_time_keyboard: true,
-            }
-        })
+        const amount = parseInt(text) || 0
+        setAmount(amount)
+
+        return ctx.reply('Destino?', Markup.forceReply())
     }
 
-    if (getStep() === 2) {
+    /** Obtener destinatario del pago */
+    if (isCurrentStep(2)) {
         resetStep()
-        target = text
-        return ctx.reply(`Pagaste ${amount} a ${target} ✔`, {
-            reply_markup: {
-                inline_keyboard: [[{
-                    text: 'Guardar',
-                    callback_data: 'guardar'
-                }]]
-            }
-        })
+        return ctx.reply(`Pagaste ${getAmount()} a ${text} ✔`, Markup.inlineKeyboard([[{
+            text: 'Guardar',
+            callback_data: 'guardar'
+        }]]))
     }
 })
 
@@ -107,6 +114,18 @@ bot.on('sticker', ctx => ctx.reply('No me envies stickers no los entiendo'))
 bot.telegram.setMyCommands([
     {
         command: '/pago',
+        description: 'Anotar un pago'
+    },
+    {
+        command: '/start',
+        description: 'Anotar un pago'
+    },
+    {
+        command: '/settings',
+        description: 'Anotar un pago'
+    },
+    {
+        command: '/help',
         description: 'Anotar un pago'
     }
 ])

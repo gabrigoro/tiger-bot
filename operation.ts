@@ -1,15 +1,31 @@
 import { OperationType } from "./enum"
 
-export let step = 0
+const transaction = {
+	step: 0,
+	amount: 0,
+	to: '',
+}
 
 /** Iniciar una nueva operacion */
 export const newOperation = (type: OperationType) => {
 	resetStep()
-
+	resetAmount()
 }
 
-export const getStep = () => step
+export const getAmount = () => transaction.amount
 
-export const increaseStep = () => step++
+export const setAmount = (newAmount:number) => {
+	transaction.amount = newAmount
+}
 
-export const resetStep = () => step = 0
+export const resetAmount = () => {
+	transaction.amount = 0
+}
+
+export const getStep = () => transaction.step
+
+export const increaseStep = () => transaction.step++
+
+export const isCurrentStep = (n:number) => getStep() === n
+
+export const resetStep = () => transaction.step = 0

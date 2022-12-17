@@ -1,17 +1,10 @@
-import { OperationType } from "./enum"
-
-export interface Transaction {
-    amount: number
-    from: string
-    to: string
-    debt: boolean
-    date: Date
-}
+import { OperationType, Transaction } from "./enum"
 
 export interface Database {
     [OperationType.Payment]: Transaction[]
     [OperationType.Debt]: Transaction[]
     [OperationType.Owe]: Transaction[]
+    [OperationType.Plan]: Transaction[]
 }
 
 export interface Store {
@@ -26,7 +19,8 @@ const store:Store = {
     database: {
         [OperationType.Payment]: [],
         [OperationType.Debt]: [],
-        [OperationType.Owe]: []
+        [OperationType.Owe]: [],
+        [OperationType.Plan]: []
     }
 }
 

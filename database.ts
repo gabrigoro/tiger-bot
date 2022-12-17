@@ -1,5 +1,6 @@
 import fs from 'fs'
-import store, { Collection, Database, Transaction } from './store'
+import { OperationType, Transaction } from './enum'
+import store, { Database } from './store'
 const log = (str:string) => console.log('[database]', str)
 const filename = store.testing ? './test-database.json' : './database.json'
 
@@ -32,29 +33,29 @@ const saveDatabase = () => {
     }
 }
 
-export const getList = (name:Collection) => store.database[name]
+export const getList = (name:OperationType) => store.database[name]
 
-export const addTransaction = (collection:Collection, transaction:Transaction) => {
+export const addTransaction = (collection:OperationType, transaction:Transaction) => {
     log('Adding transaction of ' + transaction.amount)
     store.database[collection].push(transaction)
     saveDatabase()
 }
 
-const getDebts = (collection:Collection, type:'from'|'to', name:string) => {
+const getDebts = (collection:OperationType, type:'from'|'to', name:string) => {
     const filterPerson = store.database[collection].filter(transaction => transaction[type] === name)
     return filterPerson.reduce((acc, curr) => curr.amount + acc, 0)
 }
 
 /** Devuelve la suma de las deudas `hacia` un sujeto */
 export const getDebtsToPerson = (name:string):number => {
-    return getDebts(Collection.my_debts, 'to', name)
+    return getDebts(OperationType.Debt, 'to', name)
 }
 
 /** Devuelve la suma de las deudas `de` un sujeto */
 export const getDebtsFromPerson = (name:string):number => {
-    return getDebts(Collection.others_debts, 'from', name)
+    return getDebts(OperationType.Owe, 'from', name)
 }
 
 export const getTotalPayments = ():number => {
-    return store.database[Collection.payments].reduce((acc, curr) => curr.amount + acc, 0)
+    return store.database[OperationType.Payment].reduce((acc, curr) => curr.amount + acc, 0)
 }
