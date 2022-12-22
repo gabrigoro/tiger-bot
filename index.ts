@@ -7,6 +7,7 @@ import { addTransaction, start } from './database'
 import { processMessage } from './actions'
 import { OperationType, MINUTE } from './enum'
 import { getAmount, getStep, increaseStep, isCurrentStep, newOperation, resetStep, setAmount } from './operation'
+import { version } from './package.json'
 dotenv.config()
 
 if (!process.env.BOT_TOKEN) throw 'Bot token requerido'
@@ -42,7 +43,7 @@ bot.settings((ctx) => {
  * Deberia guardar todos los chats ids en la base
  * y con un for loop crear un broadcast.
  */
-bot.telegram.sendMessage(1174794170, 'Nueva version de bot').then(e=>e).catch(() => {})
+bot.telegram.sendMessage(1174794170, 'Nueva version de bot ' + version).then(e=>e).catch(() => {})
 
 bot.command('pago', (ctx) => {
     newOperation(OperationType.Payment)
