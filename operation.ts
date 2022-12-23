@@ -5,7 +5,7 @@ const transaction:Operation = {
 	step: 0,
 	amount: 0,
 	to: '',
-	date: '',
+	date: 0,
 	from: '1174794170',
 	resolved: false,
 	type: OperationType.Payment
@@ -14,6 +14,7 @@ const transaction:Operation = {
 /** Iniciar una nueva operacion */
 export const newOperation = (type: OperationType) => {
 	transaction.type = type
+	transaction.date = (new Date()).getTime()
 	resetStep()
 	resetAmount()
 }

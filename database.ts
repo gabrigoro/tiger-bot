@@ -1,5 +1,7 @@
 import fb from './firebase'
-import { OperationType, Transaction } from './enum'
+import { MONTH, OperationType, Transaction, WEEK, YEAR } from './enum'
+
+const count = (list:Transaction[]) => list.reduce((acc, curr) => acc + curr.amount, 0)
 
 const getTransactionsFromUser = async (operation:OperationType, username:string) => {
 	const transactions = await fb.getFilteredCollection(operation, 'from', username)
@@ -19,6 +21,20 @@ const getTransactionsFromUser = async (operation:OperationType, username:string)
 
 export const getExpensesFromUser = async (username:string):Promise<Transaction[]> => {
 	return getTransactionsFromUser(OperationType.Payment, username)
+}
+
+export const getExpenses = async (username:string) => {
+    const now = (new Date()).getTime()
+    const list = await getExpensesFromUser(username)
+    const lastWeek = list.filter((debt) => debt.date > now - WEEK)
+    const lastMonth = list.filter((debt) => debt.date > now - MONTH)
+    const lastYear = list.filter((debt) => debt.date > now - YEAR)
+
+    return {
+        lastWeek: count(lastWeek),
+        lastMonth: count(lastMonth),
+        lastYear: count(lastYear)
+    }
 }
 
 export const addTransaction = (transaction:Transaction) => {

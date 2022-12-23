@@ -12,11 +12,17 @@ export interface Transaction {
 	from: string
 	to: string
 	resolved: boolean
-	date: string
+	date: number
 }
 
 export interface Operation extends Transaction {
 	step: number
 }
 
-export const MINUTE = 60000
+/** TIME IN MILISECONDS */
+export const MINUTE = 60_000
+export const HOUR = 3_600_000 // MINUTE * 60
+export const DAY = 86_400_000 // HOUR * 24
+export const WEEK = 604_800_000 // DAY * 7
+export const MONTH = 2_592_000_000 // DAY * 30
+export const YEAR = 220_752_000_000 // DAY * 365

@@ -1,7 +1,7 @@
 import { Telegraf, Context, Markup } from 'telegraf'
 import dotenv from 'dotenv'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { addTransaction, getExpensesFromUser } from './database'
+import { addTransaction, getExpenses, getExpensesFromUser } from './database'
 import { OperationType, MINUTE, Transaction } from './enum'
 import { getAmount, getStep, getTransaction, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation'
 import { version } from './package.json'
@@ -40,9 +40,12 @@ bot.settings((ctx) => {
 bot.telegram.sendMessage(1174794170, 'Nueva version de bot ' + version).then(e=>e).catch(() => {})
 
 bot.command('gastos', async (ctx) => {
-    await getExpensesFromUser('1174794170').then((data) => {
-        const amount = data.reduce((acc, curr) => acc + curr.amount, 0)
-        ctx.reply('Llevas gastando en total $' + amount)
+    await getExpenses('1174794170').then((data) => {
+        const textBody = `Ultimos 7 dias: $${data.lastWeek}
+Ultimos 30 dias: $${data.lastMonth}
+Ultimos 365 dias: $${data.lastYear}`
+
+        ctx.reply(textBody)
     })
 })
 
