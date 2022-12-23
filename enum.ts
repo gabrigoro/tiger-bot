@@ -6,10 +6,12 @@ export enum OperationType {
 }
 
 export interface Transaction {
+	type: OperationType
 	amount: number
+	category: string
 	from: string
 	to: string
-	debt: boolean
+	resolved: boolean
 	date: string
 }
 

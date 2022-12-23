@@ -4,10 +4,10 @@ import store from './store'
 import dotenv from 'dotenv'
 import { ForceReply, Update } from 'telegraf/typings/core/types/typegram'
 import { addTransaction, start } from './database'
-import { processMessage } from './actions'
-import { OperationType, MINUTE } from './enum'
-import { getAmount, getStep, increaseStep, isCurrentStep, newOperation, resetStep, setAmount } from './operation'
+import { OperationType, MINUTE, Transaction } from './enum'
+import { getAmount, getStep, getTransaction, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation'
 import { version } from './package.json'
+import { getExpenses, uploadTransaction } from './firebase'
 dotenv.config()
 
 if (!process.env.BOT_TOKEN) throw 'Bot token requerido'
@@ -26,7 +26,7 @@ bot.start(async (ctx) => {
         const date = new Date()
         const hours = date.getHours()
         const minute = date.getMinutes()
-        if (hours === 9 && minute === 0) ctx.reply('Ayer gastaste...')
+        if (hours === 12 && minute === 0) ctx.reply('Ayer gastaste...')
     }, MINUTE)
 })
 
@@ -45,6 +45,13 @@ bot.settings((ctx) => {
  */
 bot.telegram.sendMessage(1174794170, 'Nueva version de bot ' + version).then(e=>e).catch(() => {})
 
+bot.command('gastos', async (ctx) => {
+    await getExpenses().then((data) => {
+        const amount = data.reduce((acc, curr) => acc + curr.amount, 0)
+        ctx.reply('Llevas gastando en total $' + amount)
+    })
+})
+
 bot.command('pago', (ctx) => {
     newOperation(OperationType.Payment)
 
@@ -61,19 +68,21 @@ bot.on('callback_query', async (ctx) => {
 
     if (data === 'fulano') {
         increaseStep()
+        setCategory('fulano')
         return ctx.reply('Que monto pagaste?', Markup.forceReply())
     }
     
     /** Guardar en base de datos */
     if (data === 'guardar') {
-        /*
-        guardar().then(() => {
+        const buildTransaction = getTransaction()
+
+        uploadTransaction(buildTransaction).then(() => {
             return ctx.reply('💸')
         }).catch((reason) => {
-            ctx.reply(reason === 'timeout' ? 'Tiempo de espera agotado' : 'Hubo un error')
+            console.log('Failed uploading', reason)
+            return ctx.reply('Hubo un error guardando tu operacion')
         })
-        */
-        return ctx.reply('💸')
+
     }
 })
 
@@ -118,17 +127,13 @@ bot.telegram.setMyCommands([
         description: 'Anotar un pago'
     },
     {
+        command: '/gastos',
+        description: 'Anotar un pago'
+    },
+    {
         command: '/start',
         description: 'Anotar un pago'
     },
-    {
-        command: '/settings',
-        description: 'Anotar un pago'
-    },
-    {
-        command: '/help',
-        description: 'Anotar un pago'
-    }
 ])
 
 bot.launch()
