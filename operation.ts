@@ -1,8 +1,4 @@
-import { OperationType, Transaction } from "./enum"
-
-interface Operation extends Transaction {
-	step: number
-}
+import { OperationType, Transaction, Operation } from "./enum"
 
 const transaction:Operation = {
 	category: '',

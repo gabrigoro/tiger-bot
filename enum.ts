@@ -15,4 +15,8 @@ export interface Transaction {
 	date: string
 }
 
+export interface Operation extends Transaction {
+	step: number
+}
+
 export const MINUTE = 60000

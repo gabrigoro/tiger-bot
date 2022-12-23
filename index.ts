@@ -1,13 +1,10 @@
 import { Telegraf, Context, Markup } from 'telegraf'
-import fetch from 'node-fetch'
-import store from './store'
 import dotenv from 'dotenv'
-import { ForceReply, Update } from 'telegraf/typings/core/types/typegram'
-import { addTransaction, start } from './database'
+import { Update } from 'telegraf/typings/core/types/typegram'
+import { addTransaction, getExpensesFromUser } from './database'
 import { OperationType, MINUTE, Transaction } from './enum'
 import { getAmount, getStep, getTransaction, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation'
 import { version } from './package.json'
-import { getExpenses, uploadTransaction } from './firebase'
 dotenv.config()
 
 if (!process.env.BOT_TOKEN) throw 'Bot token requerido'
@@ -16,9 +13,6 @@ const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN)
 
 bot.start(async (ctx) => {
     console.log(ctx.chat.id)
-    if (store.running) return ctx.reply('Ya esta iniciado')
-    store.running = true
-    start()
     
     ctx.reply('Inicio intervalo')
 
@@ -46,7 +40,7 @@ bot.settings((ctx) => {
 bot.telegram.sendMessage(1174794170, 'Nueva version de bot ' + version).then(e=>e).catch(() => {})
 
 bot.command('gastos', async (ctx) => {
-    await getExpenses().then((data) => {
+    await getExpensesFromUser('1174794170').then((data) => {
         const amount = data.reduce((acc, curr) => acc + curr.amount, 0)
         ctx.reply('Llevas gastando en total $' + amount)
     })
@@ -76,7 +70,7 @@ bot.on('callback_query', async (ctx) => {
     if (data === 'guardar') {
         const buildTransaction = getTransaction()
 
-        uploadTransaction(buildTransaction).then(() => {
+        addTransaction(buildTransaction).then(() => {
             return ctx.reply('💸')
         }).catch((reason) => {
             console.log('Failed uploading', reason)

@@ -1,61 +1,36 @@
-import fs from 'fs'
+import fb from './firebase'
 import { OperationType, Transaction } from './enum'
-import store, { Database } from './store'
-const log = (str:string) => console.log('[database]', str)
-const filename = store.testing ? './test-database.json' : './database.json'
 
-export const start = () => {
-    log('Starting database')
-    if (fs.existsSync(filename)) {
-        log('Reading existing database')
-        const file = fs.readFileSync(filename, 'utf-8')
-        try {
-            const data = JSON.parse(file) as Database
-            store.database = data
-            return true
-        } catch (err) {
-            log('error parsing data')
-        }
-    } else {
-        log('Creating database')
-        fs.writeFileSync(filename, JSON.stringify(store.database), 'utf-8')
-        return true
-    }
-    return false
+const getTransactionsFromUser = async (operation:OperationType, username:string) => {
+	const transactions = await fb.getFilteredCollection(operation, 'from', username)
+    
+    return transactions.map<Transaction>((data) => {
+		return {
+			amount: data.amount,
+			category: data.category,
+			date: data.date,
+			from: data.from,
+			resolved: data.resolved,
+			to: data.to,
+			type: data.type,
+		}
+    })
 }
 
-const saveDatabase = () => {
-    log('Saving...')
-    try {
-        fs.writeFileSync(filename, JSON.stringify(store.database), 'utf-8')
-    } catch (err) {
-        log('error writing to disk')
-    }
+export const getExpensesFromUser = async (username:string):Promise<Transaction[]> => {
+	return getTransactionsFromUser(OperationType.Payment, username)
 }
 
-export const getList = (name:OperationType) => store.database[name]
-
-export const addTransaction = (collection:OperationType, transaction:Transaction) => {
-    log('Adding transaction of ' + transaction.amount)
-    store.database[collection].push(transaction)
-    saveDatabase()
+export const addTransaction = (transaction:Transaction) => {
+    return fb.upload(transaction.type, transaction)
 }
 
-const getDebts = (collection:OperationType, type:'from'|'to', name:string) => {
-    const filterPerson = store.database[collection].filter(transaction => transaction[type] === name)
-    return filterPerson.reduce((acc, curr) => curr.amount + acc, 0)
+/** Devuelve las deudas `hacia` un sujeto */
+export const getDebtsOfUser = (username:string) => {
+    return getTransactionsFromUser(OperationType.Debt, username)
 }
 
-/** Devuelve la suma de las deudas `hacia` un sujeto */
-export const getDebtsToPerson = (name:string):number => {
-    return getDebts(OperationType.Debt, 'to', name)
-}
-
-/** Devuelve la suma de las deudas `de` un sujeto */
-export const getDebtsFromPerson = (name:string):number => {
-    return getDebts(OperationType.Owe, 'from', name)
-}
-
-export const getTotalPayments = ():number => {
-    return store.database[OperationType.Payment].reduce((acc, curr) => curr.amount + acc, 0)
+/** Devuelve las deudas `de` un sujeto */
+export const getOwesFromPerson = (username:string) => {
+    return getTransactionsFromUser(OperationType.Owe, username)
 }
