@@ -19,16 +19,34 @@ const getTransactionsFromUser = async (operation:OperationType, username:string)
     })
 }
 
-export const getExpensesFromUser = async (username:string):Promise<Transaction[]> => {
+const getExpensesFromUser = async (username:string):Promise<Transaction[]> => {
 	return getTransactionsFromUser(OperationType.Payment, username)
+}
+
+const getIncomeFromUser = async (username:string):Promise<Transaction[]> => {
+	return getTransactionsFromUser(OperationType.Income, username)
 }
 
 export const getExpenses = async (username:string) => {
     const now = (new Date()).getTime()
     const list = await getExpensesFromUser(username)
-    const lastWeek = list.filter((debt) => debt.date > now - WEEK)
-    const lastMonth = list.filter((debt) => debt.date > now - MONTH)
-    const lastYear = list.filter((debt) => debt.date > now - YEAR)
+    const lastWeek = list.filter((doc) => doc.date > now - WEEK)
+    const lastMonth = list.filter((doc) => doc.date > now - MONTH)
+    const lastYear = list.filter((doc) => doc.date > now - YEAR)
+
+    return {
+        lastWeek: count(lastWeek),
+        lastMonth: count(lastMonth),
+        lastYear: count(lastYear)
+    }
+}
+
+export const getIncome = async (username:string) => {
+    const now = (new Date()).getTime()
+    const list = await getIncomeFromUser(username)
+    const lastWeek = list.filter((doc) => doc.date > now - WEEK)
+    const lastMonth = list.filter((doc) => doc.date > now - MONTH)
+    const lastYear = list.filter((doc) => doc.date > now - YEAR)
 
     return {
         lastWeek: count(lastWeek),

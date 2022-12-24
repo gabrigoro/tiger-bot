@@ -1,8 +1,8 @@
 import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
-import { addNewUser, addTransaction, getExpenses } from './database';
+import { addNewUser, addTransaction, getExpenses, getIncome } from './database';
 import { ErrorCode, MINUTE, OperationType } from './enum';
-import { getAmount, getTransaction, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation';
+import { getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation';
 
 type ContextParameter = NarrowedContext<Context<Update>, {
     message: Update.New & Update.NonChannel & Message.TextMessage;
@@ -59,30 +59,60 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
 }
 
 const textReceiver = (ctx:ContextParameter) => {
+	if (getType() === OperationType.Payment) return paymentSteps(ctx)
+	if (getType() === OperationType.Income) return incomeSteps(ctx)
+}
+	
+const paymentSteps = (ctx:ContextParameter) => {
     const { text } = ctx.message
 
-    /** Obtener monto del pago */
-    if (isCurrentStep(1)) {
-        increaseStep()
-        const amount = parseInt(text) || 0
-        setAmount(amount)
+	/** Obtener monto del pago */
+	if (isCurrentStep(1)) {
+		increaseStep()
+		const amount = parseInt(text) || 0
+		setAmount(amount)
+	
+		return ctx.reply('Destino?', Markup.forceReply())
+	}
+	
+	/** Obtener destinatario del pago */
+	if (isCurrentStep(2)) {
+		resetStep()
+		return ctx.reply(`Pagaste ${getAmount()} a ${text} ✔`, Markup.inlineKeyboard([[{
+			text: 'Guardar',
+			callback_data: 'guardar'
+		}]]))
+	}
+}
 
-        return ctx.reply('Destino?', Markup.forceReply())
-    }
+const incomeSteps = (ctx:ContextParameter) => {
+    const { text } = ctx.message
 
-    /** Obtener destinatario del pago */
-    if (isCurrentStep(2)) {
-        resetStep()
-        return ctx.reply(`Pagaste ${getAmount()} a ${text} ✔`, Markup.inlineKeyboard([[{
-            text: 'Guardar',
-            callback_data: 'guardar'
-        }]]))
-    }
+	/** Obtener monto del pago */
+	if (isCurrentStep(0)) {
+		resetStep()
+		const amount = parseInt(text) || 0
+		setAmount(amount)
+		return ctx.reply(`Recibiste ${getAmount()} ✔`, Markup.inlineKeyboard([[{
+			text: 'Guardar',
+			callback_data: 'guardar'
+		}]]))
+	}
 }
 
 const gastos = async (ctx:ContextParameter) => {
     await getExpenses('1174794170').then((data) => {
-        const textBody = `Ultimos 7 dias: $${data.lastWeek}
+        const textBody = `Gastos
+Ultimos 7 dias: $${data.lastWeek}
+Ultimos 30 dias: $${data.lastMonth}
+Ultimos 365 dias: $${data.lastYear}`
+
+        ctx.reply(textBody)
+    })
+
+    await getIncome('1174794170').then((data) => {
+        const textBody = `Ingresos
+Ultimos 7 dias: $${data.lastWeek}
 Ultimos 30 dias: $${data.lastMonth}
 Ultimos 365 dias: $${data.lastYear}`
 
@@ -104,7 +134,7 @@ const pago = (ctx:ContextParameter) => {
 const ingreso = (ctx:ContextParameter) => {
 	newOperation(OperationType.Income)
 
-
+    ctx.reply('Que monto recibiste?', Markup.forceReply())
 }
 
 export default {

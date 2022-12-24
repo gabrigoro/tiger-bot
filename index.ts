@@ -1,10 +1,7 @@
-import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
-import { Message } from 'typegram'
+import { Telegraf, Context } from 'telegraf'
 import dotenv from 'dotenv'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { addNewUser, addTransaction, getAllUsers, getExpenses, getExpensesFromUser } from './database'
-import { OperationType, MINUTE, Transaction, ErrorCode } from './enum'
-import { getAmount, getStep, getTransaction, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation'
+import { getAllUsers } from './database'
 import commands from './commands'
 import { version } from './package.json'
 dotenv.config()
@@ -62,8 +59,7 @@ bot.telegram.setMyCommands([
     {
         command: '/ingreso',
         description: 'Anotar un ingreso'
-    },
-
+    }
 ])
 
 bot.launch()

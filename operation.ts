@@ -19,6 +19,8 @@ export const newOperation = (type: OperationType) => {
 	resetAmount()
 }
 
+export const getType = () => transaction.type
+
 export const getAmount = () => transaction.amount
 
 export const setAmount = (newAmount:number) => {
