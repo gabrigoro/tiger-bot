@@ -121,7 +121,8 @@ Fondos: $${expenses.total + income.total}`
 }
 
 const pago = (ctx:ContextParameter) => {
-    newOperation(OperationType.Payment)
+	const username = ctx.chat.id.toString()
+    newOperation(OperationType.Payment, username)
 
     const fran = {
         text: 'Fulano',
@@ -132,7 +133,8 @@ const pago = (ctx:ContextParameter) => {
 }
 
 const ingreso = (ctx:ContextParameter) => {
-	newOperation(OperationType.Income)
+	const username = ctx.chat.id.toString()
+	newOperation(OperationType.Income, username)
 
     ctx.reply('Que monto recibiste?', Markup.forceReply())
 }

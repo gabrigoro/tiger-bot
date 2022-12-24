@@ -6,13 +6,14 @@ const transaction:Operation = {
 	amount: 0,
 	to: '',
 	date: 0,
-	from: '1174794170',
+	from: '',
 	resolved: false,
 	type: OperationType.Payment
 }
 
 /** Iniciar una nueva operacion */
-export const newOperation = (type: OperationType) => {
+export const newOperation = (type: OperationType, username:string) => {
+	transaction.from = username
 	transaction.type = type
 	transaction.date = (new Date()).getTime()
 	resetStep()
