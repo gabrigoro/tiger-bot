@@ -19,6 +19,20 @@ export interface Operation extends Transaction {
 	step: number
 }
 
+export enum Collections {
+	Users = 'usuarios',
+	Payments = 'pagos'
+}
+
+export interface User {
+	id: string
+	dateCreated: number
+}
+
+export enum ErrorCode {
+	Exists
+}
+
 /** TIME IN MILISECONDS */
 export const MINUTE = 60_000
 export const HOUR = 3_600_000 // MINUTE * 60

@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { addDoc, collection, getDocs, getFirestore, query, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDocs, getFirestore, query, setDoc, where } from 'firebase/firestore'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -14,7 +14,11 @@ const app = initializeApp({
 
 const database = getFirestore(app)
 
-const upload = (collectionName:string, document:object) => {
+const upload = (collectionName:string, document:object, id?:string) => {
+	/** setDoc setea la id manualmente */
+	if (id) return setDoc(doc(database, collectionName, id), document)
+
+	/** addDoc setea la id automaticamente */
 	return addDoc(collection(database, collectionName), document)
 }
 

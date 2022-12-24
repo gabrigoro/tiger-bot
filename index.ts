@@ -1,8 +1,8 @@
 import { Telegraf, Context, Markup } from 'telegraf'
 import dotenv from 'dotenv'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { addTransaction, getExpenses, getExpensesFromUser } from './database'
-import { OperationType, MINUTE, Transaction } from './enum'
+import { addNewUser, addTransaction, getAllUsers, getExpenses, getExpensesFromUser } from './database'
+import { OperationType, MINUTE, Transaction, ErrorCode } from './enum'
 import { getAmount, getStep, getTransaction, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation'
 import { version } from './package.json'
 dotenv.config()
@@ -12,9 +12,14 @@ if (!process.env.BOT_TOKEN) throw 'Bot token requerido'
 const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN)
 
 bot.start(async (ctx) => {
-    console.log(ctx.chat.id)
+    const newUsername = ctx.chat.id
+
+    addNewUser(newUsername.toString()).then((res) => {
+        ctx.reply('Nuevo usuario registrado: ' + newUsername)
+    }).catch((err) => {
+        ctx.reply(err === ErrorCode.Exists ? 'Ya estas registrado':'Error desconocido')
+    })
     
-    ctx.reply('Inicio intervalo')
 
     setInterval(() => {
         const date = new Date()
@@ -37,7 +42,14 @@ bot.settings((ctx) => {
  * Deberia guardar todos los chats ids en la base
  * y con un for loop crear un broadcast.
  */
-bot.telegram.sendMessage(1174794170, 'Nueva version de bot ' + version).then(e=>e).catch(() => {})
+const broadcastNewVersion = () => {
+    getAllUsers().then((users) => {
+        for (const user of users) {
+            bot.telegram.sendMessage(user.id, 'Nueva version de bot ' + version)
+        }
+    })
+}
+broadcastNewVersion()
 
 bot.command('gastos', async (ctx) => {
     await getExpenses('1174794170').then((data) => {

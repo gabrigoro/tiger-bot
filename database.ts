@@ -1,5 +1,5 @@
 import fb from './firebase'
-import { MONTH, OperationType, Transaction, WEEK, YEAR } from './enum'
+import { Collections, ErrorCode, MONTH, OperationType, Transaction, User, WEEK, YEAR } from './enum'
 
 const count = (list:Transaction[]) => list.reduce((acc, curr) => acc + curr.amount, 0)
 
@@ -49,4 +49,19 @@ export const getDebtsOfUser = (username:string) => {
 /** Devuelve las deudas `de` un sujeto */
 export const getOwesFromPerson = (username:string) => {
     return getTransactionsFromUser(OperationType.Owe, username)
+}
+
+export const getAllUsers = ():Promise<User[]> => {
+    return fb.getCollection(Collections.Users)
+}
+
+export const addNewUser = async (username:string) => {
+    const usersCollection = await getAllUsers()
+    const userExists = usersCollection.some((user) => user.id === username)
+
+    if (userExists) throw ErrorCode.Exists
+
+    return fb.upload(Collections.Users, {
+        dateCreated: (new Date()).getTime()
+    }, username)
 }
