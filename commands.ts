@@ -101,23 +101,23 @@ const incomeSteps = (ctx:ContextParameter) => {
 }
 
 const gastos = async (ctx:ContextParameter) => {
-    await getExpenses('1174794170').then((data) => {
-        const textBody = `Gastos
-Ultimos 7 dias: $${data.lastWeek}
-Ultimos 30 dias: $${data.lastMonth}
-Ultimos 365 dias: $${data.lastYear}`
+	const username = ctx.chat.id.toString()
+	const expenses = await getExpenses(username)
+	const income = await getExpenses(username)
+		
+	const textBody = `Gastos
+Ultimos 7 dias: $${expenses.lastWeek}
+Ultimos 30 dias: $${expenses.lastMonth}
+Ultimos 365 dias: $${expenses.lastYear}
 
-        ctx.reply(textBody)
-    })
+Ingresos
+Ultimos 7 dias: $${income.lastWeek}
+Ultimos 30 dias: $${income.lastMonth}
+Ultimos 365 dias: $${income.lastYear}
 
-    await getIncome('1174794170').then((data) => {
-        const textBody = `Ingresos
-Ultimos 7 dias: $${data.lastWeek}
-Ultimos 30 dias: $${data.lastMonth}
-Ultimos 365 dias: $${data.lastYear}`
+Fondos: $${expenses.total + income.total}`
 
-        ctx.reply(textBody)
-    })
+	await ctx.reply(textBody)
 }
 
 const pago = (ctx:ContextParameter) => {

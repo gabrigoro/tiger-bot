@@ -37,7 +37,8 @@ export const getExpenses = async (username:string) => {
     return {
         lastWeek: count(lastWeek),
         lastMonth: count(lastMonth),
-        lastYear: count(lastYear)
+        lastYear: count(lastYear),
+        total: count(list)
     }
 }
 
@@ -51,7 +52,8 @@ export const getIncome = async (username:string) => {
     return {
         lastWeek: count(lastWeek),
         lastMonth: count(lastMonth),
-        lastYear: count(lastYear)
+        lastYear: count(lastYear),
+        total: count(list)
     }
 }
 
