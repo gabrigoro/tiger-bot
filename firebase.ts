@@ -5,12 +5,12 @@ dotenv.config()
 
 const app = initializeApp({
 	apiKey: process.env.API_KEY,
-	authDomain: "purpose-tiger.firebaseapp.com",
-	projectId: "purpose-tiger",
-	storageBucket: "purpose-tiger.appspot.com",
-	messagingSenderId: "760962459657",
-	appId: "1:760962459657:web:218fc9cfa4121bd935f0d8"
-  })
+	authDomain: process.env.AUTH_DOMAIN,
+	projectId: process.env.PROJECT_ID,
+	storageBucket: process.env.STORAGE_BUCKET,
+	messagingSenderId: process.env.MESSAGING_SENDER_ID,
+	appId: process.env.APP_ID
+})
 
 const database = getFirestore(app)
 
