@@ -2,7 +2,8 @@ export enum OperationType {
 	Payment = 'pago',
 	Debt = 'deuda',
 	Owe = 'debo',
-	Plan = 'plan'
+	Plan = 'plan',
+	Income = 'ingreso'
 }
 
 export interface Transaction {
