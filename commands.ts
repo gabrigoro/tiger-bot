@@ -2,7 +2,7 @@ import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
 import { addNewUser, addTransaction, getExpenses, getIncome } from './database';
 import { ErrorCode, MINUTE, OperationType } from './enum';
-import { getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory } from './operation';
+import { getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory, setOrigin, setTarget } from './operation';
 
 type ContextParameter = NarrowedContext<Context<Update>, {
     message: Update.New & Update.NonChannel & Message.TextMessage;
@@ -35,13 +35,19 @@ const settings = (ctx:ContextParameter) => {
 	return ctx.reply('Ninguna configuracion por ahora')
 }
 
+interface CallbackTypes {
+	key: string
+	value: string
+}
+
 const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
     const { data } = (await ctx.callbackQuery) as {data:string}
 
-    if (data === 'fulano') {
+	/** Recibe una categoria */
+    if (data !== 'guardar') {
         increaseStep()
-        setCategory('fulano')
-        return ctx.reply('Que monto pagaste?', Markup.forceReply())
+        setCategory(data)
+        return ctx.reply('Ingresa el monto', Markup.forceReply())
     }
     
     /** Guardar en base de datos */
@@ -62,7 +68,19 @@ const textReceiver = (ctx:ContextParameter) => {
 	if (getType() === OperationType.Payment) return paymentSteps(ctx)
 	if (getType() === OperationType.Income) return incomeSteps(ctx)
 }
-	
+
+const pago = (ctx:ContextParameter) => {
+	const username = ctx.chat.id.toString()
+    newOperation(OperationType.Payment, username)
+
+    const fran = {
+        text: 'Fulano',
+        callback_data: 'fulano'
+    }
+
+    ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard([[fran,fran,fran]]))
+}
+
 const paymentSteps = (ctx:ContextParameter) => {
     const { text } = ctx.message
 
@@ -77,6 +95,7 @@ const paymentSteps = (ctx:ContextParameter) => {
 	
 	/** Obtener destinatario del pago */
 	if (isCurrentStep(2)) {
+		setTarget(text)
 		resetStep()
 		return ctx.reply(`Pagaste ${getAmount()} a ${text} ✔`, Markup.inlineKeyboard([[{
 			text: 'Guardar',
@@ -85,11 +104,21 @@ const paymentSteps = (ctx:ContextParameter) => {
 	}
 }
 
+const ingreso = (ctx:ContextParameter) => {
+	const username = ctx.chat.id.toString()
+	newOperation(OperationType.Income, username)
+
+    ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard([[
+		{text: 'Sueldo', callback_data: 'sueldo'},
+		{text: 'Regalo', callback_data: 'regalo'}
+	]]))
+}
+
 const incomeSteps = (ctx:ContextParameter) => {
     const { text } = ctx.message
 
 	/** Obtener monto del pago */
-	if (isCurrentStep(0)) {
+	if (isCurrentStep(1)) {
 		resetStep()
 		const amount = parseInt(text) || 0
 		setAmount(amount)
@@ -118,25 +147,6 @@ Ultimos 365 dias: $${income.lastYear}
 Fondos: $${income.total - expenses.total}`
 
 	await ctx.reply(textBody)
-}
-
-const pago = (ctx:ContextParameter) => {
-	const username = ctx.chat.id.toString()
-    newOperation(OperationType.Payment, username)
-
-    const fran = {
-        text: 'Fulano',
-        callback_data: 'fulano'
-    }
-
-    ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard([[fran,fran,fran]]))
-}
-
-const ingreso = (ctx:ContextParameter) => {
-	const username = ctx.chat.id.toString()
-	newOperation(OperationType.Income, username)
-
-    ctx.reply('Que monto recibiste?', Markup.forceReply())
 }
 
 export default {

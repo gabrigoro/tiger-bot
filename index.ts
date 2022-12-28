@@ -22,7 +22,7 @@ const broadcastNewVersion = () => {
         }
     })
 }
-broadcastNewVersion()
+// broadcastNewVersion()
 
 bot.start(commands.start)
 

@@ -13,7 +13,8 @@ const transaction:Operation = {
 
 /** Iniciar una nueva operacion */
 export const newOperation = (type: OperationType, username:string) => {
-	transaction.from = username
+	if (type === OperationType.Payment) transaction.from = username
+	if (type === OperationType.Income) transaction.to = username
 	transaction.type = type
 	transaction.date = (new Date()).getTime()
 	resetStep()
@@ -26,6 +27,14 @@ export const getAmount = () => transaction.amount
 
 export const setAmount = (newAmount:number) => {
 	transaction.amount = newAmount
+}
+
+export const setOrigin = (origin:string) => {
+	transaction.from = origin
+}
+
+export const setTarget = (target:string) => {
+	transaction.to = target
 }
 
 export const resetAmount = () => {
