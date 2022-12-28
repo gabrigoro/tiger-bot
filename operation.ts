@@ -1,4 +1,4 @@
-import { OperationType, Transaction, Operation } from "./enum"
+import { OperationType, Transaction, Operation, TIMEOUT } from "./enum"
 
 const transaction:Operation = {
 	category: '',
@@ -11,14 +11,28 @@ const transaction:Operation = {
 	type: OperationType.Payment
 }
 
+let timeout:NodeJS.Timeout
+
+export const startTimer = (cb: ()=>unknown) => {
+	timeout = setTimeout(() => {
+		closeOperation()
+		cb()
+	}, TIMEOUT)
+}
+
 /** Iniciar una nueva operacion */
 export const newOperation = (type: OperationType, username:string) => {
 	if (type === OperationType.Payment) transaction.from = username
 	if (type === OperationType.Income) transaction.to = username
 	transaction.type = type
 	transaction.date = (new Date()).getTime()
-	resetStep()
+	closeOperation()
+}
+
+export const closeOperation = () => {
+	clearTimeout(timeout)
 	resetAmount()
+	resetStep()
 }
 
 export const getType = () => transaction.type
@@ -43,7 +57,9 @@ export const resetAmount = () => {
 
 export const getStep = () => transaction.step
 
-export const increaseStep = () => transaction.step++
+export const increaseStep = () => {
+	transaction.step++
+}
 
 export const isCurrentStep = (n:number) => getStep() === n
 

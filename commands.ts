@@ -2,7 +2,7 @@ import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
 import { addNewUser, addTransaction, getExpenses, getIncome } from './database';
 import { ErrorCode, MINUTE, OperationType } from './enum';
-import { getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory, setOrigin, setTarget } from './operation';
+import { closeOperation, getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory, setOrigin, setTarget, startTimer } from './operation';
 
 type ContextParameter = NarrowedContext<Context<Update>, {
     message: Update.New & Update.NonChannel & Message.TextMessage;
@@ -35,11 +35,6 @@ const settings = (ctx:ContextParameter) => {
 	return ctx.reply('Ninguna configuracion por ahora')
 }
 
-interface CallbackTypes {
-	key: string
-	value: string
-}
-
 const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
     const { data } = (await ctx.callbackQuery) as {data:string}
 
@@ -53,7 +48,7 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
     /** Guardar en base de datos */
     if (data === 'guardar') {
         const buildTransaction = getTransaction()
-
+		closeOperation()
         addTransaction(buildTransaction).then(() => {
             return ctx.reply('💸')
         }).catch((reason) => {
@@ -96,11 +91,12 @@ const paymentSteps = (ctx:ContextParameter) => {
 	/** Obtener destinatario del pago */
 	if (isCurrentStep(2)) {
 		setTarget(text)
-		resetStep()
 		return ctx.reply(`Pagaste ${getAmount()} a ${text} ✔`, Markup.inlineKeyboard([[{
 			text: 'Guardar',
 			callback_data: 'guardar'
-		}]]))
+		}]])).then(() => {
+			startTimer(() => ctx.reply('Tiempo caducado'))
+		})
 	}
 }
 
