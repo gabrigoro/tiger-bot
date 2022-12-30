@@ -3,7 +3,8 @@ import { CallbackQuery, Message, Update } from 'typegram'
 import { incomeSteps, ingreso } from './commands/income';
 import { paymentSteps, pago } from './commands/payment';
 import { addNewUser, addTransaction, getExpenses, getIncome } from './database';
-import { ErrorCode, MINUTE, OperationType } from './enum';
+import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
+import fb from './firebase'
 import { closeOperation, getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory, setOrigin, setTarget, startTimer } from './operation';
 
 export type ContextParameter = NarrowedContext<Context<Update>, {
@@ -86,6 +87,21 @@ Fondos: $${income.total - expenses.total}`
 	await ctx.reply(textBody)
 }
 
+const eliminar = async (ctx:ContextParameter) => {
+    ctx.sendChatAction('typing')
+    const paymentsList = await fb.getCollection<Transaction>('pago')
+    const incomeList = await fb.getCollection<Transaction>('ingreso')
+    const ops = [...paymentsList, ...incomeList].sort((a,b) => a.date - b.date)
+
+    /** Si las transacciones son menos de 2, telegram no puede enviar un Poll con una sola opcion. */
+    if (ops.length < 2) return ctx.reply(`${ops[0].date} ${ops[0].type} $${ops[0].amount}`)
+
+    ctx.sendPoll('Transacciones', ops.map((op) => `${op.date} ${op.type} $${op.amount}`), Markup.inlineKeyboard([[{
+        text: 'Cancelar',
+        callback_data: 'cancelar'
+    }]]))
+}
+
 export default {
 	start,
 	help,
@@ -94,5 +110,6 @@ export default {
 	textReceiver,
 	gastos,
 	pago,
-	ingreso
+	ingreso,
+    eliminar
 }

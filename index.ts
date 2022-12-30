@@ -36,6 +36,8 @@ bot.command('pago', commands.pago)
 
 bot.command('ingreso', commands.ingreso)
 
+bot.command('eliminar', commands.eliminar)
+
 bot.on('callback_query', commands.callbackMaster)
 
 bot.on('text', commands.textReceiver)
@@ -59,7 +61,11 @@ bot.telegram.setMyCommands([
     {
         command: '/ingreso',
         description: 'Anotar un ingreso'
-    }
+    },
+    {
+        command: '/eliminar',
+        description: 'Eliminar una transaccion'
+    },
 ])
 
 bot.launch()

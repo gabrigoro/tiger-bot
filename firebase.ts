@@ -22,11 +22,11 @@ const upload = (collectionName:string, document:object, id?:string) => {
 	return addDoc(collection(database, collectionName), document)
 }
 
-const getCollection = async (collectionName:string) => {
+const getCollection = async <T>(collectionName:string) => {
 	const col = collection(database, collectionName)
 	const snapshot = await getDocs(col)
 	return snapshot.docs.map((doc) => {
-		const data = doc.data() as any
+		const data = doc.data() as T
 		return { id: doc.id, ...data }
 	})
 }
