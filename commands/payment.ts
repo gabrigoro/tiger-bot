@@ -3,16 +3,27 @@ import { ContextParameter } from "../commands"
 import { OperationType } from "../enum"
 import { getAmount, increaseStep, isCurrentStep, newOperation, setAmount, setTarget, startTimer } from "../operation"
 
+const capitalize = (str:string) => {
+	return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+const categorias = [
+	['comida', 'regalo', 'ocio'],
+	['compras', 'personal', 'otro']
+]
+
+const listaCategorias = categorias.map((fila) => {
+	return fila.map((cat) => ({
+		text: capitalize(cat),
+		callback_data: cat
+	}))
+})
+
 export const pago = (ctx:ContextParameter) => {
 	const username = ctx.chat.id.toString()
     newOperation(OperationType.Payment, username)
 
-    const fran = {
-        text: 'Fulano',
-        callback_data: 'fulano'
-    }
-
-    ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard([[fran,fran,fran]]))
+    ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard(listaCategorias))
 }
 
 export const paymentSteps = (ctx:ContextParameter) => {
