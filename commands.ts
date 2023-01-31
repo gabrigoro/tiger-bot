@@ -64,7 +64,9 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
 
 const textReceiver = async (ctx:ContextParameter) => {
     const parts = ctx.message.text.split(' ')
-    if (parts[0].match(/[^a-g]/g)?.length) {
+    if (parts.length < 2) return ctx.reply('Comando incompleto')
+    
+    if (parts[0].match(/[^a-z]/g)?.length) {
         // si la primera parte no tiene letras
         
         if (parts[1].match(/[a-g]/g)?.length) {
@@ -80,14 +82,14 @@ const textReceiver = async (ctx:ContextParameter) => {
             try {
                 await fb.upload('gasto', {
                     monto: amount,
-                    nombre: parts.slice(1, parts.length) // array menos el primer elemento
+                    nombre: parts.slice(1, parts.length).join(' ') // array menos el primer elemento
                 })
             } catch (err) {
                 return ctx.reply('Hubo un error')
             }
             const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
             const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
-            return ctx.reply('Fondos: ' + suma)
+            return ctx.reply('Fondos: ' + suma.toFixed(2))
         }
     }
     return ctx.reply('Invalido')
