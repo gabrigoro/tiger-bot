@@ -31,7 +31,7 @@ bot.command('pago', commands.pago)
 bot.command('ingreso', commands.ingreso)
 bot.command('eliminar', commands.eliminar)
 
-bot.on('callback_query', commands.callbackMaster)
+// bot.on('callback_query', commands.callbackMaster)
 bot.on('text', commands.textReceiver)
 bot.on('sticker', ctx => ctx.reply('No me envies stickers no los entiendo'))
 
