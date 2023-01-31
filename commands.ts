@@ -62,7 +62,35 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
     }
 }
 
-const textReceiver = (ctx:ContextParameter) => {
+const textReceiver = async (ctx:ContextParameter) => {
+    const parts = ctx.message.text.split(' ')
+    if (parts[0].match(/[^a-g]/g)?.length) {
+        // si la primera parte no tiene letras
+        
+        if (parts[1].match(/[a-g]/g)?.length) {
+            // si la segunda parte tiene letras
+
+            // si tiene un - no lo cuenta
+            if (parts[0].includes('-')) return ctx.reply('No se admite -')
+            
+            // si numero contiene un + es un ingreso
+            const esIngreso = parts[0].includes('+')
+            const parseado = parseFloat(parts[0])
+            const amount = esIngreso ? parseado : parseado * -1
+            try {
+                await fb.upload('gasto', {
+                    monto: amount,
+                    nombre: parts.slice(1, parts.length) // array menos el primer elemento
+                })
+            } catch (err) {
+                return ctx.reply('Hubo un error')
+            }
+            const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
+            const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
+            return ctx.reply('Fondos: ' + suma)
+        }
+    }
+    return ctx.reply('Invalido')
 	if (getType() === OperationType.Payment) return paymentSteps(ctx)
 	if (getType() === OperationType.Income) return incomeSteps(ctx)
 }

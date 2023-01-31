@@ -12,8 +12,6 @@ const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN)
 
 /**
  * Enviar un mensaje a cierto chat.
- * Deberia guardar todos los chats ids en la base
- * y con un for loop crear un broadcast.
  */
 const broadcastNewVersion = () => {
     getAllUsers().then((users) => {
@@ -25,23 +23,16 @@ const broadcastNewVersion = () => {
 // broadcastNewVersion()
 
 bot.start(commands.start)
-
 bot.help(commands.help)
-
 bot.settings(commands.settings)
 
 bot.command('gastos', commands.gastos)
-
 bot.command('pago', commands.pago)
-
 bot.command('ingreso', commands.ingreso)
-
 bot.command('eliminar', commands.eliminar)
 
 bot.on('callback_query', commands.callbackMaster)
-
 bot.on('text', commands.textReceiver)
-
 bot.on('sticker', ctx => ctx.reply('No me envies stickers no los entiendo'))
 
 /**
