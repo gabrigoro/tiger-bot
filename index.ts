@@ -16,11 +16,11 @@ const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN)
 const broadcastNewVersion = () => {
     getAllUsers().then((users) => {
         for (const user of users) {
-            bot.telegram.sendMessage(user.id, 'Nueva version de bot ' + version)
+            bot.telegram.sendMessage(user.id, 'Iniciado con version ' + version)
         }
     })
 }
-// broadcastNewVersion()
+broadcastNewVersion()
 
 bot.start(commands.start)
 bot.help(commands.help)
@@ -59,7 +59,10 @@ bot.telegram.setMyCommands([
     },
 ])
 
-bot.launch()
+bot.launch().catch((reason) => {
+    if (reason.response.error_code === 409) console.log('Another instance took control')
+    console.log('Gracefully stoping...')
+})
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
