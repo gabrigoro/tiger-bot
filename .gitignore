@@ -4,3 +4,4 @@ package-lock.json
 dist
 database.json
 test-database.json
+*.log

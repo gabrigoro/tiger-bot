@@ -5,6 +5,7 @@ import { paymentSteps, pago } from './commands/payment';
 import { addNewUser, addTransaction, getExpenses, getIncome } from './database';
 import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
 import fb from './firebase'
+import { logger } from './logger';
 import { closeOperation, getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, resetStep, setAmount, setCategory, setOrigin, setTarget, startTimer } from './operation';
 
 export type ContextParameter = NarrowedContext<Context<Update>, {
@@ -64,16 +65,23 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
 
 const textReceiver = async (ctx:ContextParameter) => {
     const parts = ctx.message.text.split(' ')
-    if (parts.length < 2) return ctx.reply('Comando incompleto')
+    logger.info(parts)
+    if (parts.length < 2) {
+        logger.error('Comando incompleto')
+        return ctx.reply('Comando incompleto')
+    }
     
     if (parts[0].match(/[^a-z]/g)?.length) {
         // si la primera parte no tiene letras
         
-        if (parts[1].match(/[a-g]/g)?.length) {
+        if (parts[1].match(/[a-z]/g)?.length) {
             // si la segunda parte tiene letras
 
             // si tiene un - no lo cuenta
-            if (parts[0].includes('-')) return ctx.reply('No se admite -')
+            if (parts[0].includes('-')) {
+                logger.error('No se admitem "-"')
+                return ctx.reply('No se admitem "-"')
+            }
             
             // si numero contiene un + es un ingreso
             const esIngreso = parts[0].includes('+')
@@ -85,14 +93,19 @@ const textReceiver = async (ctx:ContextParameter) => {
                     nombre: parts.slice(1, parts.length).join(' ') // array menos el primer elemento
                 })
             } catch (err) {
+                logger.error('Error en request firebase')
                 return ctx.reply('Hubo un error')
             }
             const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
             const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
+            logger.info(`${ctx.message.text}: OK`)
             return ctx.reply('Fondos: ' + suma.toFixed(2))
         }
     }
+    logger.error('Invalido')
     return ctx.reply('Invalido')
+
+    // cosas de la version anterior de la app
 	if (getType() === OperationType.Payment) return paymentSteps(ctx)
 	if (getType() === OperationType.Income) return incomeSteps(ctx)
 }
