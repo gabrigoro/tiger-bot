@@ -13,6 +13,8 @@ COPY ./commands ./commands
 
 ENV PORT 3000
 
+ENV NODE_ENV production
+
 EXPOSE $PORT
 
 CMD ["npm","start"]

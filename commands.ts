@@ -65,9 +65,9 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
 
 const textReceiver = async (ctx:ContextParameter) => {
     const parts = ctx.message.text.split(' ')
-    logger.info(parts)
+    logger.info('[UserInput] ' + parts)
     if (parts.length < 2) {
-        logger.error('Comando incompleto')
+        logger.error('Incomplete command')
         return ctx.reply('Comando incompleto')
     }
     
@@ -79,7 +79,7 @@ const textReceiver = async (ctx:ContextParameter) => {
 
             // si tiene un - no lo cuenta
             if (parts[0].includes('-')) {
-                logger.error('No se admitem "-"')
+                logger.error('"-" detected')
                 return ctx.reply('No se admitem "-"')
             }
             
@@ -93,7 +93,7 @@ const textReceiver = async (ctx:ContextParameter) => {
                     nombre: parts.slice(1, parts.length).join(' ') // array menos el primer elemento
                 })
             } catch (err) {
-                logger.error('Error en request firebase')
+                logger.error('Firebase push error')
                 return ctx.reply('Hubo un error')
             }
             const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
@@ -102,7 +102,7 @@ const textReceiver = async (ctx:ContextParameter) => {
             return ctx.reply('Fondos: ' + suma.toFixed(2))
         }
     }
-    logger.error('Invalido')
+    logger.error('Invalid')
     return ctx.reply('Invalido')
 
     // cosas de la version anterior de la app
