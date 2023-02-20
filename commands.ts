@@ -3,6 +3,7 @@ import { CallbackQuery, Message, Update } from 'typegram'
 import { incomeSteps, ingreso } from './commands/income';
 import { paymentSteps, pago } from './commands/payment';
 import { addNewUser, addTransaction, getExpenses, getIncome } from './database';
+import getDolarValue from './dolarAPI';
 import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
 import fb from './firebase'
 import { logger } from './logger';
@@ -66,6 +67,8 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
 const textReceiver = async (ctx:ContextParameter) => {
     const parts = ctx.message.text.split(' ')
     logger.info('[UserInput] ' + parts)
+    const dolar = await getDolarValue()
+    ctx.reply(`${dolar}`)
     if (parts.length < 2) {
         logger.error('Incomplete command')
         return ctx.reply('Comando incompleto')
@@ -99,7 +102,7 @@ const textReceiver = async (ctx:ContextParameter) => {
             const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
             const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
             logger.info(`${ctx.message.text}: OK`)
-            return ctx.reply('Fondos: ' + suma.toFixed(2))
+            return ctx.reply(`$${amount} OK. Fondos: $${suma.toFixed(2)}`)
         }
     }
     logger.error('Invalid')

@@ -3,6 +3,7 @@ import express from 'express'
 
 const app = express()
 
+startBot()
 app.get('/start', (req, res) => {
     res.send('Iniciando bot')
     startBot()
