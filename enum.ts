@@ -34,6 +34,8 @@ export enum ErrorCode {
 	Exists
 }
 
+export type BotStatus = 'online' | 'offline'
+
 export const TIMEOUT = 15000
 
 /** TIME IN MILISECONDS */

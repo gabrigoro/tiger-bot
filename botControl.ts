@@ -5,24 +5,29 @@ import { getAllUsers } from './database'
 import commands from './commands'
 import { version } from './package.json'
 import { logger } from './logger'
+import { BotStatus } from './enum'
 dotenv.config()
+
+let botStatus:BotStatus = 'offline'
 
 if (!process.env.BOT_TOKEN) throw 'Bot token requerido'
 
 const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN)
 
-export function startBot() {
-    /**
-     * Enviar un mensaje a cierto chat.
-     */
-    const broadcastNewVersion = () => {
-        getAllUsers().then((users) => {
-            for (const user of users) {
-                bot.telegram.sendMessage(user.id, 'Iniciado con version ' + version)
-            }
-        })
-    }
-    broadcastNewVersion()
+const broadcastMessage = (message:string) => {
+    getAllUsers().then((users) => {
+        for (const user of users) {
+            bot.telegram.sendMessage(user.id, message)
+        }
+    })
+}
+
+export async function startBot():Promise<BotStatus> {
+    /** Emitir la nueva version a todos los chats */
+    // broadcastMessage('Iniciado con version ' + version)
+
+    /** Enviar un mensaje a cierto chat. */
+    // bot.hears()
 
     bot.start(commands.start)
     bot.help(commands.help)
@@ -62,17 +67,32 @@ export function startBot() {
     ])
 
     logger.info('Starting bot')
-    bot.launch().catch((reason) => {
-        if (reason.response.error_code === 409) logger.error('Another instance took control')
-        logger.info('Gracefully stoping...')
-    })
-
+    
     // Enable graceful stop
     process.once('SIGINT', () => bot.stop('SIGINT'));
     process.once('SIGTERM', () => bot.stop('SIGTERM'));
+    
+    botStatus = 'online'
+
+    bot.launch().catch((reason) => {
+        if (reason.response.error_code === 409) logger.error('Another instance took control')
+        logger.info('Gracefully stoping...')
+        botStatus = 'offline'
+    })
+    return botStatus
 }
 
-export function stopBot() {
+export async function stopBot() {
+    botStatus = 'offline'
     logger.info('Stopping bot')
-    bot.stop()
+    try {
+        bot.stop()
+    } catch (error) {
+        logger.error('Error stopping bot')
+    }
+    return botStatus
+}
+
+export function getBotStatus() {
+    return botStatus
 }
