@@ -7,8 +7,9 @@
     "start": "npx tsc && node dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
     "test": "TESTING=true vitest",
-    "docker:build": "docker build -t francael/tiger .",
-    "docker:run": "docker run -dp 3000:3000 francael/tiger"
+    "docker:build": "docker build -t franelfers/tiger .",
+    "docker:run": "docker run -dp 3000:3000 franelfers/tiger",
+    "docker:push": "docker push franelfers/tiger"
   },
   "keywords": [],
   "author": "",

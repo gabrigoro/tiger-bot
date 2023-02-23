@@ -10,6 +10,7 @@ COPY ./*.ts ./
 COPY ./.env ./
 COPY ./tsconfig.json ./
 COPY ./commands ./commands
+COPY ./public ./public
 
 ENV PORT 3000
 
