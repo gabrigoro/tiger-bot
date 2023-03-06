@@ -36,4 +36,6 @@ app.get('/stop', (req, res) => {
 
 app.listen(process.env.PORT, () => {
     logger.info(`Express server listening on ${process.env.PORT}`)
+}).on('error', (err) => {
+    logger.error(err.message)
 })

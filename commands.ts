@@ -148,12 +148,51 @@ const eliminar = async (ctx:ContextParameter) => {
     }]]))
 }
 
+type CommandType = {
+    name: string
+    invocator: string
+    description: string
+    procedure: (ctx:ContextParameter) => any
+}
+
+/**
+ * Lista de comandos visualizados en la interfaz del chat de telegram. 
+ * El atributo `invocator` siempre tiene que empezar con una `/`.
+ */
+const list:CommandType[] = [
+    {
+        name: 'gastos',
+        invocator: '/gastos',
+        procedure: gastos,
+        description: 'Anotar un pago'
+    },
+    {
+        name: 'pago',
+        invocator: '/pago',
+        procedure: pago,
+        description: 'Ver gastos'
+    },
+    {
+        name: 'ingreso',
+        invocator: '/ingreso',
+        procedure: ingreso,
+        description: 'Anotar un ingreso'
+    },
+    {
+        name: 'eliminar',
+        invocator: '/eliminar',
+        procedure: eliminar,
+        description: 'Eliminar una transaccion'
+    }    
+]
+
 export default {
 	start,
 	help,
 	settings,
 	callbackMaster,
 	textReceiver,
+    list,
 	gastos,
 	pago,
 	ingreso,

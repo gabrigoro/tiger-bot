@@ -26,17 +26,16 @@ export async function startBot():Promise<BotStatus> {
     /** Emitir la nueva version a todos los chats */
     // broadcastMessage('Iniciado con version ' + version)
 
-    /** Enviar un mensaje a cierto chat. */
+    /** Escuchar texto */
     // bot.hears()
 
     bot.start(commands.start)
     bot.help(commands.help)
     bot.settings(commands.settings)
 
-    bot.command('gastos', commands.gastos)
-    bot.command('pago', commands.pago)
-    bot.command('ingreso', commands.ingreso)
-    bot.command('eliminar', commands.eliminar)
+    for (const command of commands.list) {
+        bot.command(command.name, command.procedure)
+    }
 
     // bot.on('callback_query', commands.callbackMaster)
     bot.on('text', commands.textReceiver)
@@ -47,24 +46,10 @@ export async function startBot():Promise<BotStatus> {
      * El comando tiene que empezar con una `/`, tiene
      * que existir y tiene que declararse de antemano.
      */
-    bot.telegram.setMyCommands([
-        {
-            command: '/pago',
-            description: 'Anotar un pago'
-        },
-        {
-            command: '/gastos',
-            description: 'Ver gastos'
-        },
-        {
-            command: '/ingreso',
-            description: 'Anotar un ingreso'
-        },
-        {
-            command: '/eliminar',
-            description: 'Eliminar una transaccion'
-        },
-    ])
+    bot.telegram.setMyCommands(commands.list.map((command) => ({
+        command: command.invocator,
+        description: command.description
+    })))
 
     logger.info('Starting bot')
     
