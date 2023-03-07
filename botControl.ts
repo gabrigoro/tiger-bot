@@ -2,7 +2,8 @@ import { Telegraf, Context } from 'telegraf'
 import dotenv from 'dotenv'
 import { Update } from 'telegraf/typings/core/types/typegram'
 import { getAllUsers } from './database'
-import commands from './commands'
+import * as commands from './commands'
+import { start } from './commands/start'
 import { version } from './package.json'
 import { logger } from './logger'
 import { BotStatus } from './enum'
@@ -26,10 +27,10 @@ export async function startBot():Promise<BotStatus> {
     /** Emitir la nueva version a todos los chats */
     // broadcastMessage('Iniciado con version ' + version)
 
-    /** Escuchar texto */
+    /** Escuchar texto especifico */
     // bot.hears()
 
-    bot.start(commands.start)
+    bot.start(start)
     bot.help(commands.help)
     bot.settings(commands.settings)
 

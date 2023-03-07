@@ -45,11 +45,15 @@
 			impactAPI('/stop')
 		})
 
-		setInterval(() => {
+		function updateBotStatus() {
 			impactAPI('/status').then((res) => {
 				statusTextElement.textContent = res.status
 			})
-		}, 5000)
+		}
+
+		updateBotStatus()
+
+		setInterval(updateBotStatus, 5000)
 	</script>
 </body>
 </html>

@@ -2,7 +2,7 @@ import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
 import { incomeSteps, ingreso } from './commands/income';
 import { paymentSteps, pago } from './commands/payment';
-import { addNewUser, addTransaction, getExpenses, getIncome } from './database';
+import { addNewAnonFeedback, addNewUser, addTransaction, getExpenses, getIncome } from './database';
 import getDolarValue from './dolarAPI';
 import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
 import fb from './firebase'
@@ -14,33 +14,15 @@ export type ContextParameter = NarrowedContext<Context<Update>, {
     update_id: number;
 }>
 
-const start = async (ctx:ContextParameter) => {
-    const newUsername = ctx.chat.id
-
-    addNewUser(newUsername.toString()).then((res) => {
-        ctx.reply('Nuevo usuario registrado: ' + newUsername)
-    }).catch((err) => {
-        ctx.reply(err === ErrorCode.Exists ? 'Ya estas registrado':'Error desconocido')
-    })
-    
-
-    setInterval(() => {
-        const date = new Date()
-        const hours = date.getHours()
-        const minute = date.getMinutes()
-        if (hours === 12 && minute === 0) ctx.reply('Ayer gastaste...')
-    }, MINUTE)
-}
-
-const help = (ctx:ContextParameter) => {
+export const help = (ctx:ContextParameter) => {
 	return ctx.reply('Nada de ayuda por ahora')
 }
 
-const settings = (ctx:ContextParameter) => {
+export const settings = (ctx:ContextParameter) => {
 	return ctx.reply('Ninguna configuracion por ahora')
 }
 
-const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
+export const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
     const { data } = (await ctx.callbackQuery) as {data:string}
 
 	/** Recibe una categoria */
@@ -64,7 +46,7 @@ const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.Callba
     }
 }
 
-const textReceiver = async (ctx:ContextParameter) => {
+export const textReceiver = async (ctx:ContextParameter) => {
     const parts = ctx.message.text.split(' ')
     logger.info('[UserInput] ' + parts)
     const dolar = await getDolarValue()
@@ -113,7 +95,7 @@ const textReceiver = async (ctx:ContextParameter) => {
 	if (getType() === OperationType.Income) return incomeSteps(ctx)
 }
 
-const gastos = async (ctx:ContextParameter) => {
+export const gastos = async (ctx:ContextParameter) => {
 	const username = ctx.chat.id.toString()
 	const expenses = await getExpenses(username)
 	const income = await getIncome(username)
@@ -159,7 +141,7 @@ type CommandType = {
  * Lista de comandos visualizados en la interfaz del chat de telegram. 
  * El atributo `invocator` siempre tiene que empezar con una `/`.
  */
-const list:CommandType[] = [
+export const list:CommandType[] = [
     {
         name: 'gastos',
         invocator: '/gastos',
@@ -183,18 +165,15 @@ const list:CommandType[] = [
         invocator: '/eliminar',
         procedure: eliminar,
         description: 'Eliminar una transaccion'
-    }    
+    },
+    {
+        name: 'feedback',
+        invocator: '/feedback',
+        procedure: (ctx) => {
+            ctx.reply('Proximamente.')
+            
+            // addNewAnonFeedback(ctx.chat.id.toString(), ctx.message.text)
+        },
+        description: 'Enviar comentarios al desarrollador'
+    }
 ]
-
-export default {
-	start,
-	help,
-	settings,
-	callbackMaster,
-	textReceiver,
-    list,
-	gastos,
-	pago,
-	ingreso,
-    eliminar
-}
