@@ -21,10 +21,13 @@
 	<p id="status"></p>
 	<button id="botStart">Iniciar bot</button>
 	<button id="botStop">Detener bot</button>
+	<input type="text" name="url" id="url" placeholder="http://localhost:3000">
 
 	<script>
+		let url = 'http://localhost:3000'
+
 		function impactAPI(route) {
-			return fetch('http://localhost:3000' + route)
+			return fetch(url + route)
 				.then((res) => res.json())
 				.then((res) => {
 					console.log(route, 'response', res)
@@ -36,8 +39,10 @@
 		const startButton = document.querySelector('#botStart')
 		const stopButton = document.querySelector('#botStop')
 		const statusTextElement = document.querySelector('#status')
+		const urlTextInput = document.querySelector('#url')
 
 		startButton.addEventListener('click', (e) => {
+			url = urlTextInput.textContent
 			impactAPI('/start')
 		})
 		

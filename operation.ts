@@ -1,4 +1,6 @@
+import { ContextParameter } from "./commands"
 import { OperationType, Transaction, Operation, TIMEOUT } from "./enum"
+import { logger } from "./logger"
 
 const transaction:Operation = {
 	category: '',
@@ -70,3 +72,79 @@ export const setCategory = (category:string) => {
 }
 
 export const getTransaction = () => transaction as Transaction
+
+
+/**
+ * NUEVO TIPO DE OPERACION
+ */
+
+/** Tipos de operaciones */
+type NewOperationType = 'feedback' | 'subscribe' | 'broadcast' | 'null'
+type SimpleOperation = (ctx:ContextParameter) => void
+
+type OperatorStruct = {
+	command: NewOperationType
+	isActive: boolean
+	step: number
+	start: (command:NewOperationType) => void
+	nextStep: SimpleOperation
+	end: () => void
+}
+
+type CommandsStepsList = {
+	[key in NewOperationType]: SimpleOperation[]
+}
+
+/** 
+ * Operador de comandos
+ * @step 0: Comando sin empezar
+ * @step 1: Comando seteado, esperando mensaje
+ * @step 2...: Flujo normal
+ */
+export const Operator:OperatorStruct = {
+	command: 'null',
+	isActive: false,
+	step: 0,
+	start(command:NewOperationType) {
+		if (this.isActive) this.end()
+		this.command = command
+		this.isActive = true
+		this.step = 1
+		logger.info(`[operation] Starting new ${this.command}`)
+	},
+	nextStep(ctx) {
+		if (this.step === 0) {
+			return this.end()
+		}
+
+		const selectedCommand = allSteps[this.command]
+		const currentCommand = selectedCommand[this.step - 1]
+		currentCommand(ctx)
+	},
+	end() {
+		logger.info(`[operation] Closing ${this.command}`)
+		this.command = 'null'
+		this.isActive = false
+	}
+}
+
+/** Pasos de /feedback */
+const feedbackSteps = [
+	async function(ctx:ContextParameter) {
+		const feedbackText = ctx.message.text
+		logger.info(`[feedback] ${feedbackText}`)
+		await ctx.reply('Tu mensaje:')
+		await ctx.reply(feedbackText)
+		await ctx.reply('Subiendo feedback')
+		Operator.end()
+	}
+]
+
+const allSteps:CommandsStepsList = {
+	null: [(ctx) => {
+		Operator.end()
+	}],
+	feedback: feedbackSteps,
+	broadcast: [(ctx) => {}],
+	subscribe: [(ctx) => {}]
+}
