@@ -7,12 +7,12 @@ const capitalize = (str:string) => {
 	return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-const categorias = [
+export const categorias = [
 	['comida', 'regalo', 'ocio'],
 	['compras', 'personal', 'otro']
 ]
 
-const listaCategorias = categorias.map((fila) => {
+export const listaCategorias = categorias.map((fila) => {
 	return fila.map((cat) => ({
 		text: capitalize(cat),
 		callback_data: cat

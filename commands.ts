@@ -7,7 +7,7 @@ import getDolarValue from './dolarAPI';
 import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
 import fb from './firebase'
 import { logger } from './logger';
-import { closeOperation, getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, Operator, resetStep, setAmount, setCategory, setOrigin, setTarget, startTimer } from './operation';
+import { allSteps, closeOperation, getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, Operator, resetStep, setAmount, setCategory, setOrigin, setTarget, startTimer } from './operation';
 
 export type ContextParameter = NarrowedContext<Context<Update>, {
     message: Update.New & Update.NonChannel & Message.TextMessage;
@@ -23,6 +23,7 @@ export const settings = (ctx:ContextParameter) => {
 }
 
 export const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
+    return
     const { data } = (await ctx.callbackQuery) as {data:string}
 
 	/** Recibe una categoria */
@@ -153,7 +154,7 @@ export const list:CommandType[] = [
     {
         name: 'pago',
         invocator: '/pago',
-        procedure: pago,
+        procedure: allSteps['payment'][0],
         description: 'Ver gastos'
     },
     {
@@ -171,11 +172,7 @@ export const list:CommandType[] = [
     {
         name: 'feedback',
         invocator: '/feedback',
-        procedure(ctx) {
-            Operator.start('feedback')
-            ctx.reply('Escribi tus comentarios en un solo mensaje:')
-            // addNewAnonFeedback(ctx.chat.id.toString(), ctx.message.text)
-        },
+        procedure: allSteps['feedback'][0],
         description: 'Enviar comentarios al desarrollador'
     }
 ]

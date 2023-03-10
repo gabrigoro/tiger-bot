@@ -1,6 +1,10 @@
+import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
+import { CallbackQuery, Message, Update } from 'typegram'
 import { ContextParameter } from "./commands"
+import { listaCategorias } from './commands/payment'
 import { OperationType, Transaction, Operation, TIMEOUT } from "./enum"
 import { logger } from "./logger"
+import fb from './firebase'
 
 const transaction:Operation = {
 	category: '',
@@ -79,7 +83,7 @@ export const getTransaction = () => transaction as Transaction
  */
 
 /** Tipos de operaciones */
-type NewOperationType = 'feedback' | 'subscribe' | 'broadcast' | 'null'
+type NewOperationType = 'payment' | 'feedback' | 'subscribe' | 'broadcast' | 'null'
 type SimpleOperation = (ctx:ContextParameter) => void
 
 type OperatorStruct = {
@@ -105,7 +109,7 @@ export const Operator:OperatorStruct = {
 	command: 'null',
 	isActive: false,
 	step: 0,
-	start(command:NewOperationType) {
+	start(command) {
 		if (this.isActive) this.end()
 		this.command = command
 		this.isActive = true
@@ -118,7 +122,9 @@ export const Operator:OperatorStruct = {
 		}
 
 		const selectedCommand = allSteps[this.command]
-		const currentCommand = selectedCommand[this.step - 1]
+		const currentCommand = selectedCommand[this.step]
+
+		logger.info(`[command] ${currentCommand.name}`)
 		currentCommand(ctx)
 	},
 	end() {
@@ -129,8 +135,13 @@ export const Operator:OperatorStruct = {
 }
 
 /** Pasos de /feedback */
-const feedbackSteps = [
-	async function(ctx:ContextParameter) {
+const feedbackSteps:SimpleOperation[] = [
+	async function(ctx) {
+		Operator.start('feedback')
+		ctx.reply('Escribi tus comentarios en un solo mensaje:')
+		// addNewAnonFeedback(ctx.chat.id.toString(), ctx.message.text)
+	},
+	async function(ctx) {
 		const feedbackText = ctx.message.text
 		logger.info(`[feedback] ${feedbackText}`)
 		await ctx.reply('Tu mensaje:')
@@ -140,10 +151,68 @@ const feedbackSteps = [
 	}
 ]
 
-const allSteps:CommandsStepsList = {
+/** Pasos de /payment */
+const paymentSteps:SimpleOperation[] = [
+	async function(ctx) {
+		Operator.start('payment')
+		// const username = ctx.chat.id.toString()
+		// newOperation(OperationType.Payment, username)
+	
+		// ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard(listaCategorias))
+		// TODO: acordarse de generalizar el listado de categorias
+		ctx.reply('Enviar pago con formato "<monto> <description>"')
+	},
+	async function(ctx) {
+		const parts = ctx.message.text.split(' ')
+
+		if (parts.length < 2) {
+			logger.error('Incomplete command')
+			ctx.reply('Comando incompleto')
+			Operator.end()
+			return 
+		} 
+		
+		if (parts[0].match(/[^a-z]/g)?.length) {
+			// si la primera parte no tiene letras
+			
+			if (parts[1].match(/[a-z]/g)?.length) {
+				// si la segunda parte tiene letras
+	
+				// si tiene un - no lo cuenta
+				if (parts[0].includes('-')) {
+					logger.error('"-" detected')
+					return ctx.reply('No se admitem "-"')
+				}
+				
+				// si numero contiene un + es un ingreso
+				const esIngreso = parts[0].includes('+')
+				const parseado = parseFloat(parts[0])
+				const amount = esIngreso ? parseado : parseado * -1
+				try {
+					await fb.upload('gasto', {
+						monto: amount,
+						nombre: parts.slice(1, parts.length).join(' ') // array menos el primer elemento
+					})
+				} catch (err) {
+					logger.error('Firebase push error')
+					return ctx.reply('Hubo un error')
+				}
+				const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
+				const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
+				logger.info(`${ctx.message.text}: OK`)
+				return ctx.reply(`$${amount} OK. Fondos: $${suma.toFixed(2)}`)
+			}
+		}
+		logger.error('Invalid')
+		return ctx.reply('Invalido')
+	}
+]
+
+export const allSteps:CommandsStepsList = {
 	null: [(ctx) => {
 		Operator.end()
 	}],
+	payment: paymentSteps,
 	feedback: feedbackSteps,
 	broadcast: [(ctx) => {}],
 	subscribe: [(ctx) => {}]
