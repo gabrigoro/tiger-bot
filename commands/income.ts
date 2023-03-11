@@ -1,7 +1,7 @@
 import { Markup } from "telegraf"
-import { ContextParameter } from "../commands"
-import { OperationType } from "../enum"
-import { getAmount, isCurrentStep, newOperation, resetStep, setAmount } from "../operation"
+import { ContextParameter } from "../src/commands"
+import { OperationType } from "../src/enum"
+import { getAmount, isCurrentStep, newOperation, resetStep, setAmount } from "../src/operation"
 
 export const ingreso = (ctx:ContextParameter) => {
 	const username = ctx.chat.id.toString()

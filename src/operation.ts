@@ -1,7 +1,7 @@
 import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
 import { ContextParameter } from "./commands"
-import { listaCategorias } from './commands/payment'
+import { listaCategorias } from '../commands/payment'
 import { OperationType, Transaction, Operation, TIMEOUT } from "./enum"
 import { logger } from "./logger"
 import fb from './firebase'

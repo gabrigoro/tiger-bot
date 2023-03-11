@@ -1,7 +1,7 @@
-import { getBotStatus, startBot, stopBot } from "./botControl"
+import { getBotStatus, startBot, stopBot } from "./src/botControl"
 import express from 'express'
 import { readFile } from 'fs'
-import { logger } from "./logger"
+import { logger } from "./src/logger"
 
 const app = express()
 

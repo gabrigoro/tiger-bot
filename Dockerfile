@@ -1,21 +1,28 @@
+# Alpine para imagen reducida
 FROM node:alpine
 
+# esto mejora performance
+ENV NODE_ENV production
+
+# lugar dedicado para la app
 WORKDIR /usr/src/app
 
-COPY ./package.json ./
+# Copiar solo archivos necesarios para la instalacion
+COPY package*.json ./
 
-RUN npm install
+# Solo instala dependencias de produccion
+# `ci` asegura un build reproducible
+RUN npm ci --only=production
 
-COPY ./*.ts ./
-COPY ./.env ./
-COPY ./tsconfig.json ./
-COPY ./commands ./commands
-COPY ./public ./public
+# Copiar fuente despues de instalar dependencias
+# Y solo copiar los archivos necesarios
+COPY --chown=node:node ./dist ./dist
+
+# remover
+COPY .env ./
 
 ENV PORT 3000
 
-ENV NODE_ENV production
-
 EXPOSE $PORT
 
-CMD ["npm","start"]
+CMD ["node","dist/index.js"]

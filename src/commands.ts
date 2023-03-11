@@ -1,7 +1,7 @@
 import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
-import { incomeSteps, ingreso } from './commands/income';
-import { paymentSteps, pago } from './commands/payment';
+import { incomeSteps, ingreso } from '../commands/income';
+import { paymentSteps, pago } from '../commands/payment';
 import { addNewAnonFeedback, addNewUser, addTransaction, getExpenses, getIncome } from './database';
 import getDolarValue from './dolarAPI';
 import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
