@@ -15,6 +15,9 @@ const app = initializeApp({
 const database = getFirestore(app)
 
 const upload = (collectionName:string, document:object, id?:string) => {
+	/** Testing Database */
+	// if (process.env.VITEST) return testUpload(collectionName, document, id='')
+
 	/** setDoc setea la id manualmente */
 	if (id) return setDoc(doc(database, collectionName, id), document)
 

@@ -4,7 +4,7 @@ import { ContextParameter } from "./commands"
 import { listaCategorias } from '../commands/payment'
 import { OperationType, Transaction, Operation, TIMEOUT } from "./enum"
 import { logger } from "./logger"
-import fb from './firebase'
+import fb from './database/firebase'
 
 const transaction:Operation = {
 	category: '',

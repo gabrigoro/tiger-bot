@@ -1,5 +1,5 @@
 import fb from './firebase'
-import { Collections, ErrorCode, MONTH, OperationType, Transaction, User, WEEK, YEAR } from './enum'
+import { Collections, ErrorCode, MONTH, OperationType, Transaction, User, WEEK, YEAR } from '../enum'
 
 const count = (list:Transaction[]) => list.reduce((acc, curr) => acc + curr.amount, 0)
 

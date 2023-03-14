@@ -6,7 +6,7 @@
     "build": "npx tsc",
     "start": "npx tsc && node dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
-    "test": "TESTING=true vitest",
+    "test": "TESTING=true vitest --config ./vitest.config.ts",
     "docker:build": "docker build -t franelfers/tiger:0.0.9 .",
     "docker:run": "docker run -dp 3000:3000 franelfers/tiger",
     "docker:push": "docker push franelfers/tiger"

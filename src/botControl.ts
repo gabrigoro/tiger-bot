@@ -1,7 +1,7 @@
 import { Telegraf, Context } from 'telegraf'
 import dotenv from 'dotenv'
 import { Update } from 'telegraf/typings/core/types/typegram'
-import { getAllUsers } from './database'
+import { getAllUsers } from './database/database'
 import * as commands from './commands'
 import { start } from '../commands/start'
 import { version } from '../package.json'

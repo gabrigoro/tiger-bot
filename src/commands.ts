@@ -2,10 +2,10 @@ import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
 import { incomeSteps, ingreso } from '../commands/income';
 import { paymentSteps, pago } from '../commands/payment';
-import { addNewAnonFeedback, addNewUser, addTransaction, getExpenses, getIncome } from './database';
+import { addNewAnonFeedback, addNewUser, addTransaction, getExpenses, getIncome } from './database/database';
 import getDolarValue from './dolarAPI';
 import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
-import fb from './firebase'
+import fb from './database/firebase'
 import { logger } from './logger';
 import { allSteps, closeOperation, getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, Operator, resetStep, setAmount, setCategory, setOrigin, setTarget, startTimer } from './operation';
 

@@ -1,5 +1,5 @@
 import { ContextParameter } from "../src/commands"
-import { addNewUser } from "../src/database"
+import { addNewUser } from "../src/database/database"
 import { ErrorCode, MINUTE } from "../src/enum"
 import { logger } from "../src/logger"
 
