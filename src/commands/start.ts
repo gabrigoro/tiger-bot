@@ -6,12 +6,11 @@ import { logger } from "../logger"
 export const start = async (ctx:ContextParameter) => {
     const newUsername = ctx.chat.id
 
-	await ctx.reply('Bienvenido a Finanzas bot 🤠')
 	if (ctx.chat.id === 1174794170) await ctx.reply('Hola administrador')
-
+	
 	addNewUser(newUsername.toString())
-		.then((res) => {
-			ctx.reply('Nuevo usuario registrado: ' + newUsername)
+	.then((res) => {
+			ctx.reply('Bienvenido a Finanzas bot 🤠\nNuevo usuario registrado: ' + newUsername)
 		})
 		.catch((err) => {
 			if (err === ErrorCode.Exists) {

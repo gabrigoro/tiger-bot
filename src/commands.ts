@@ -1,14 +1,13 @@
 import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
-import { pago } from './commands/payment';
 import { addNewAnonFeedback, addNewUser, addTransaction, getExpenses, getIncome } from './database/database';
-import getDolarValue from './dolarAPI';
-import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
+import { Transaction } from './enum';
 import fb from './database/firebase'
 import { logger } from './logger';
 import { closeOperation, getTransaction, increaseStep, Operator, setCategory } from './operation';
 import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } from './commands.types';
 import { incomeSteps } from './commands/income';
+import { paymentSteps } from './commands/payment';
 
 
 export const help = (ctx:ContextParameter) => {
@@ -100,63 +99,6 @@ const feedbackSteps:SimpleOperation[] = [
 		await ctx.reply(feedbackText)
 		await ctx.reply('Subiendo feedback')
 		Operator.end(ctx)
-	}
-]
-
-/** Pasos de /payment */
-const paymentSteps:SimpleOperation[] = [
-	async function(ctx) {
-		Operator.start(ctx, 'payment')
-		// const username = ctx.chat.id.toString()
-		// newOperation(OperationType.Payment, username)
-	
-		// ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard(listaCategorias))
-		// TODO: acordarse de generalizar el listado de categorias
-		ctx.reply('Enviar pago con formato "<monto> <description>"')
-	},
-	async function(ctx) {
-		const parts = ctx.message.text.split(' ')
-
-		if (parts.length < 2) {
-			logger.error('Incomplete command')
-			ctx.reply('Comando incompleto')
-			Operator.end(ctx)
-			return 
-		} 
-		
-		if (parts[0].match(/[^a-z]/g)?.length) {
-			// si la primera parte no tiene letras
-			
-			if (parts[1].match(/[a-z]/g)?.length) {
-				// si la segunda parte tiene letras
-	
-				// si tiene un - no lo cuenta
-				if (parts[0].includes('-')) {
-					logger.error('"-" detected')
-					return ctx.reply('No se admitem "-"')
-				}
-				
-				// si numero contiene un + es un ingreso
-				const esIngreso = parts[0].includes('+')
-				const parseado = parseFloat(parts[0])
-				const amount = esIngreso ? parseado : parseado * -1
-				try {
-					await fb.upload('gasto', {
-						monto: amount,
-						nombre: parts.slice(1, parts.length).join(' ') // array menos el primer elemento
-					})
-				} catch (err) {
-					logger.error('Firebase push error')
-					return ctx.reply('Hubo un error')
-				}
-				const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
-				const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
-				logger.info(`${ctx.message.text}: OK`)
-				return ctx.reply(`$${amount} OK. Fondos: $${suma.toFixed(2)}`)
-			}
-		}
-		logger.error('Invalid')
-		return ctx.reply('Invalido')
 	}
 ]
 
