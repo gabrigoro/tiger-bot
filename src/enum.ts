@@ -15,11 +15,6 @@ export interface Transaction {
 	resolved: boolean
 	date: number
 }
-
-export interface Operation extends Transaction {
-	step: number
-}
-
 export enum Collections {
 	Users = 'usuarios',
 	Payments = 'pagos'

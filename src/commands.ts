@@ -1,10 +1,9 @@
 import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
-import { CallbackQuery, Message, Update } from 'typegram'
-import { addNewAnonFeedback, addNewUser, addTransaction, getExpenses, getIncome } from './database/database';
-import { Transaction } from './enum';
+import { CallbackQuery, Update } from 'typegram'
+import { getExpenses, getIncome } from './database/database';
 import fb from './database/firebase'
 import { logger } from './logger';
-import { closeOperation, getTransaction, increaseStep, Operator, setCategory } from './operation';
+import { Operator } from './operation';
 import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } from './commands.types';
 import { incomeSteps } from './commands/income';
 import { paymentSteps } from './commands/payment';
@@ -21,27 +20,27 @@ export const settings = (ctx:ContextParameter) => {
 export const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
     return
     /** TODO: CALLBACK */
-    const { data } = (await ctx.callbackQuery) as {data:string}
+    // const { data } = (await ctx.callbackQuery) as {data:string}
 
-	/** Recibe una categoria */
-    if (data !== 'guardar') {
-        increaseStep()
-        setCategory(data)
-        return ctx.reply('Ingresa el monto', Markup.forceReply())
-    }
+	// /** Recibe una categoria */
+    // if (data !== 'guardar') {
+    //     increaseStep()
+    //     setCategory(data)
+    //     return ctx.reply('Ingresa el monto', Markup.forceReply())
+    // }
     
-    /** Guardar en base de datos */
-    if (data === 'guardar') {
-        const buildTransaction = getTransaction()
-		closeOperation()
-        addTransaction(buildTransaction).then(() => {
-            return ctx.reply('💸')
-        }).catch((reason) => {
-            console.log('Failed uploading', reason)
-            return ctx.reply('Hubo un error guardando tu operacion')
-        })
+    // /** Guardar en base de datos */
+    // if (data === 'guardar') {
+    //     const buildTransaction = getTransaction()
+	// 	closeOperation()
+    //     addTransaction(buildTransaction).then(() => {
+    //         return ctx.reply('💸')
+    //     }).catch((reason) => {
+    //         console.log('Failed uploading', reason)
+    //         return ctx.reply('Hubo un error guardando tu operacion')
+    //     })
 
-    }
+    // }
 }
 
 export const textReceiver = async (ctx:ContextParameter) => {
@@ -69,20 +68,20 @@ Fondos: $${income.total - expenses.total}`
 	await ctx.reply(textBody)
 }
 
-const eliminar = async (ctx:ContextParameter) => {
-    ctx.sendChatAction('typing')
-    const paymentsList = await fb.getCollection<Transaction>('pago')
-    const incomeList = await fb.getCollection<Transaction>('ingreso')
-    const ops = [...paymentsList, ...incomeList].sort((a,b) => a.date - b.date)
+// const eliminar = async (ctx:ContextParameter) => {
+//     ctx.sendChatAction('typing')
+//     const paymentsList = await fb.getCollection<Transaction>('pago')
+//     const incomeList = await fb.getCollection<Transaction>('ingreso')
+//     const ops = [...paymentsList, ...incomeList].sort((a,b) => a.date - b.date)
 
-    /** Si las transacciones son menos de 2, telegram no puede enviar un Poll con una sola opcion. */
-    if (ops.length < 2) return ctx.reply(`${ops[0].date} ${ops[0].type} $${ops[0].amount}`)
+//     /** Si las transacciones son menos de 2, telegram no puede enviar un Poll con una sola opcion. */
+//     if (ops.length < 2) return ctx.reply(`${ops[0].date} ${ops[0].type} $${ops[0].amount}`)
 
-    ctx.sendPoll('Transacciones', ops.map((op) => `${op.date} ${op.type} $${op.amount}`), Markup.inlineKeyboard([[{
-        text: 'Cancelar',
-        callback_data: 'cancelar'
-    }]]))
-}
+//     ctx.sendPoll('Transacciones', ops.map((op) => `${op.date} ${op.type} $${op.amount}`), Markup.inlineKeyboard([[{
+//         text: 'Cancelar',
+//         callback_data: 'cancelar'
+//     }]]))
+// }
 
 
 /** Pasos de /feedback */
@@ -139,7 +138,7 @@ export const list:CommandType[] = [
     {
         name: 'eliminar',
         invocator: '/eliminar',
-        procedure: eliminar,
+        procedure: () => {},
         description: 'Eliminar una transaccion'
     },
     {
