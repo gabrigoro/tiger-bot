@@ -1,18 +1,15 @@
 import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Message, Update } from 'typegram'
-import { incomeSteps, ingreso } from '../commands/income';
-import { paymentSteps, pago } from '../commands/payment';
+import { pago } from './commands/payment';
 import { addNewAnonFeedback, addNewUser, addTransaction, getExpenses, getIncome } from './database/database';
 import getDolarValue from './dolarAPI';
 import { ErrorCode, MINUTE, OperationType, Transaction } from './enum';
 import fb from './database/firebase'
 import { logger } from './logger';
-import { allSteps, closeOperation, getAmount, getTransaction, getType, increaseStep, isCurrentStep, newOperation, Operator, resetStep, setAmount, setCategory, setOrigin, setTarget, startTimer } from './operation';
+import { closeOperation, getTransaction, increaseStep, Operator, setCategory } from './operation';
+import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } from './commands.types';
+import { incomeSteps } from './commands/income';
 
-export type ContextParameter = NarrowedContext<Context<Update>, {
-    message: Update.New & Update.NonChannel & Message.TextMessage;
-    update_id: number;
-}>
 
 export const help = (ctx:ContextParameter) => {
 	return ctx.reply('Nada de ayuda por ahora')
@@ -24,6 +21,7 @@ export const settings = (ctx:ContextParameter) => {
 
 export const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
     return
+    /** TODO: CALLBACK */
     const { data } = (await ctx.callbackQuery) as {data:string}
 
 	/** Recibe una categoria */
@@ -50,52 +48,6 @@ export const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update
 export const textReceiver = async (ctx:ContextParameter) => {
     Operator.nextStep(ctx)
     return
-    const parts = ctx.message.text.split(' ')
-    logger.info('[UserInput] ' + parts)
-    const dolar = await getDolarValue()
-    ctx.reply(`${dolar}`)
-    if (parts.length < 2) {
-        logger.error('Incomplete command')
-        return ctx.reply('Comando incompleto')
-    }
-    
-    if (parts[0].match(/[^a-z]/g)?.length) {
-        // si la primera parte no tiene letras
-        
-        if (parts[1].match(/[a-z]/g)?.length) {
-            // si la segunda parte tiene letras
-
-            // si tiene un - no lo cuenta
-            if (parts[0].includes('-')) {
-                logger.error('"-" detected')
-                return ctx.reply('No se admitem "-"')
-            }
-            
-            // si numero contiene un + es un ingreso
-            const esIngreso = parts[0].includes('+')
-            const parseado = parseFloat(parts[0])
-            const amount = esIngreso ? parseado : parseado * -1
-            try {
-                await fb.upload('gasto', {
-                    monto: amount,
-                    nombre: parts.slice(1, parts.length).join(' ') // array menos el primer elemento
-                })
-            } catch (err) {
-                logger.error('Firebase push error')
-                return ctx.reply('Hubo un error')
-            }
-            const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
-            const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
-            logger.info(`${ctx.message.text}: OK`)
-            return ctx.reply(`$${amount} OK. Fondos: $${suma.toFixed(2)}`)
-        }
-    }
-    logger.error('Invalid')
-    return ctx.reply('Invalido')
-
-    // cosas de la version anterior de la app
-	if (getType() === OperationType.Payment) return paymentSteps(ctx)
-	if (getType() === OperationType.Income) return incomeSteps(ctx)
 }
 
 export const gastos = async (ctx:ContextParameter) => {
@@ -133,11 +85,90 @@ const eliminar = async (ctx:ContextParameter) => {
     }]]))
 }
 
-type CommandType = {
-    name: string
-    invocator: string
-    description: string
-    procedure: (ctx:ContextParameter) => any
+
+/** Pasos de /feedback */
+const feedbackSteps:SimpleOperation[] = [
+	async function(ctx) {
+		Operator.start(ctx, 'feedback')
+		ctx.reply('Escribi tus comentarios en un solo mensaje:')
+		// addNewAnonFeedback(ctx.chat.id.toString(), ctx.message.text)
+	},
+	async function(ctx) {
+		const feedbackText = ctx.message.text
+		logger.info(`[feedback] ${feedbackText}`)
+		await ctx.reply('Tu mensaje:')
+		await ctx.reply(feedbackText)
+		await ctx.reply('Subiendo feedback')
+		Operator.end(ctx)
+	}
+]
+
+/** Pasos de /payment */
+const paymentSteps:SimpleOperation[] = [
+	async function(ctx) {
+		Operator.start(ctx, 'payment')
+		// const username = ctx.chat.id.toString()
+		// newOperation(OperationType.Payment, username)
+	
+		// ctx.reply('Elegir la categoria del pago', Markup.inlineKeyboard(listaCategorias))
+		// TODO: acordarse de generalizar el listado de categorias
+		ctx.reply('Enviar pago con formato "<monto> <description>"')
+	},
+	async function(ctx) {
+		const parts = ctx.message.text.split(' ')
+
+		if (parts.length < 2) {
+			logger.error('Incomplete command')
+			ctx.reply('Comando incompleto')
+			Operator.end(ctx)
+			return 
+		} 
+		
+		if (parts[0].match(/[^a-z]/g)?.length) {
+			// si la primera parte no tiene letras
+			
+			if (parts[1].match(/[a-z]/g)?.length) {
+				// si la segunda parte tiene letras
+	
+				// si tiene un - no lo cuenta
+				if (parts[0].includes('-')) {
+					logger.error('"-" detected')
+					return ctx.reply('No se admitem "-"')
+				}
+				
+				// si numero contiene un + es un ingreso
+				const esIngreso = parts[0].includes('+')
+				const parseado = parseFloat(parts[0])
+				const amount = esIngreso ? parseado : parseado * -1
+				try {
+					await fb.upload('gasto', {
+						monto: amount,
+						nombre: parts.slice(1, parts.length).join(' ') // array menos el primer elemento
+					})
+				} catch (err) {
+					logger.error('Firebase push error')
+					return ctx.reply('Hubo un error')
+				}
+				const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
+				const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
+				logger.info(`${ctx.message.text}: OK`)
+				return ctx.reply(`$${amount} OK. Fondos: $${suma.toFixed(2)}`)
+			}
+		}
+		logger.error('Invalid')
+		return ctx.reply('Invalido')
+	}
+]
+
+export const allSteps:CommandsStepsList = {
+	null: [(ctx) => {
+		Operator.end(ctx)
+	}],
+	payment: paymentSteps,
+	feedback: feedbackSteps,
+    income: incomeSteps,
+	broadcast: [(ctx) => {}],
+	subscribe: [(ctx) => {}],
 }
 
 /**
@@ -160,7 +191,7 @@ export const list:CommandType[] = [
     {
         name: 'ingreso',
         invocator: '/ingreso',
-        procedure: ingreso,
+        procedure: allSteps['income'][0],
         description: 'Anotar un ingreso'
     },
     {

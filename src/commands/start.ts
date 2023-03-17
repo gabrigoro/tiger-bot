@@ -1,7 +1,7 @@
-import { ContextParameter } from "../src/commands"
-import { addNewUser } from "../src/database/database"
-import { ErrorCode, MINUTE } from "../src/enum"
-import { logger } from "../src/logger"
+import { ContextParameter } from "../commands.types"
+import { addNewUser } from "../database/database"
+import { ErrorCode, MINUTE } from "../enum"
+import { logger } from "../logger"
 
 export const start = async (ctx:ContextParameter) => {
     const newUsername = ctx.chat.id

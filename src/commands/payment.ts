@@ -1,7 +1,7 @@
 import { Markup } from "telegraf"
-import { ContextParameter } from "../src/commands"
-import { OperationType } from "../src/enum"
-import { getAmount, increaseStep, isCurrentStep, newOperation, setAmount, setTarget, startTimer } from "../src/operation"
+import { ContextParameter } from "../commands.types"
+import { OperationType } from "../enum"
+import { getAmount, increaseStep, isCurrentStep, newOperation, setAmount, setTarget, startTimer } from "../operation"
 
 const capitalize = (str:string) => {
 	return str.charAt(0).toUpperCase() + str.slice(1)
