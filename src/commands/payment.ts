@@ -1,7 +1,7 @@
 import { Markup } from "telegraf"
 import { ContextParameter, SimpleOperation } from "../commands.types"
 import { logger } from "../logger"
-import { Operator } from "../operation"
+import { Operator } from "../operator"
 import fb from '../database/firebase'
 
 /** Pasos de /payment */

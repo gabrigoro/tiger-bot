@@ -19,7 +19,7 @@ export const start = async (ctx:ContextParameter) => {
 			}
 
 			// Error desconocido
-			logger.error(err)
+			logger.error(`[command:start] ${err}`)
 			ctx.reply('Error desconocido')
 		})
 		.finally(() => {

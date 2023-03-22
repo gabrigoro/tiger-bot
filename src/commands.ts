@@ -3,7 +3,7 @@ import { CallbackQuery, Update } from 'typegram'
 import { getExpenses, getIncome } from './database/database';
 import fb from './database/firebase'
 import { logger } from './logger';
-import { Operator } from './operation';
+import { Operator } from './operator';
 import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } from './commands.types';
 import { incomeSteps } from './commands/income';
 import { paymentSteps } from './commands/payment';
@@ -102,9 +102,6 @@ const feedbackSteps:SimpleOperation[] = [
 ]
 
 export const allSteps:CommandsStepsList = {
-	null: [(ctx) => {
-		Operator.end(ctx)
-	}],
 	payment: paymentSteps,
 	feedback: feedbackSteps,
     income: incomeSteps,

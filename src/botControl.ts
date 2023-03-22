@@ -61,7 +61,12 @@ export async function startBot():Promise<BotStatus> {
     botStatus = 'online'
 
     bot.launch().catch((reason) => {
-        if (reason.response.error_code === 409) logger.error('Another instance took control')
+        if (reason.response?.error_code === 409) {
+            logger.error('Another instance took control')
+        } else {
+            logger.error(`[launch] ${reason}`)
+        }
+
         logger.info('Gracefully stoping...')
         botStatus = 'offline'
     })

@@ -1,5 +1,6 @@
 import { Context, NarrowedContext } from 'telegraf'
 import { Message, Update } from 'typegram'
+import { Operation } from './operation';
 
 export type ContextParameter = NarrowedContext<Context<Update>, {
     message: Update.New & Update.NonChannel & Message.TextMessage;
@@ -7,7 +8,7 @@ export type ContextParameter = NarrowedContext<Context<Update>, {
 }>
 
 export type CommandsStepsList = {
-	[key in NewOperationType]: SimpleOperation[]
+	[key in OperationName]: SimpleOperation[]
 }
 
 export type CommandType = {
@@ -18,14 +19,14 @@ export type CommandType = {
 }
 
 /** Tipos de operaciones */
-export type NewOperationType = 'payment' | 'feedback' | 'subscribe' | 'broadcast' | 'income' | 'null'
+export type OperationName = 'payment' | 'feedback' | 'subscribe' | 'broadcast' | 'income'
 export type SimpleOperation = (ctx:ContextParameter) => void
 
 export type OperatorStruct = {
-	command: NewOperationType
-	isActive: boolean
-	step: number
-	start: (ctx: ContextParameter, command:NewOperationType) => void
+	buffer: {
+		[key in string]: Operation
+	}
+	start: (ctx: ContextParameter, command:OperationName) => void
 	nextStep: SimpleOperation
 	end: (ctx: ContextParameter) => void
 }

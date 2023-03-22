@@ -1,6 +1,6 @@
 import { Markup } from "telegraf"
 import { ContextParameter, SimpleOperation } from "../commands.types"
-import { Operator } from "../operation"
+import { Operator } from "../operator"
 
 export const incomeSteps:SimpleOperation[] = [
 	async function(ctx) {
