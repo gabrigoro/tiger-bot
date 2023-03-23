@@ -31,7 +31,7 @@ export class Operation {
 		// deberia empezar un timeout por aca
 	}
 
-	nextStep(ctx:ContextParameter) {
+	async nextStep(ctx:ContextParameter) {
 		this.step++
 		const selectedCommand = allSteps[this.operation]
 		const currentCommand = selectedCommand[this.step]

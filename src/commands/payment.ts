@@ -34,6 +34,7 @@ export const paymentSteps:SimpleOperation[] = [
 				// si tiene un - no lo cuenta
 				if (parts[0].includes('-')) {
 					logger.error('"-" detected')
+					Operator.end(ctx)
 					return ctx.reply('No se admitem "-"')
 				}
 				
@@ -48,22 +49,21 @@ export const paymentSteps:SimpleOperation[] = [
 					})
 				} catch (err) {
 					logger.error('Firebase push error')
+					Operator.end(ctx)
 					return ctx.reply('Hubo un error')
 				}
 				const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')
 				const suma = gastos.reduce((acc, curr) => acc + curr.monto, 0)
 				logger.info(`${ctx.message.text}: OK`)
+				Operator.end(ctx)
 				return ctx.reply(`$${amount} OK. Fondos: $${suma.toFixed(2)}`)
 			}
 		}
 		logger.error('Invalid')
+		Operator.end(ctx)
 		return ctx.reply('Invalido')
 	}
 ]
-
-const capitalize = (str:string) => {
-	return str.charAt(0).toUpperCase() + str.slice(1)
-}
 
 export const categorias = [
 	['comida', 'regalo', 'ocio'],

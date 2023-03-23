@@ -20,7 +20,7 @@ export type CommandType = {
 
 /** Tipos de operaciones */
 export type OperationName = 'payment' | 'feedback' | 'subscribe' | 'broadcast' | 'income'
-export type SimpleOperation = (ctx:ContextParameter) => void
+export type SimpleOperation = (ctx:ContextParameter) => Promise<unknown>
 
 export type OperatorStruct = {
 	buffer: {
