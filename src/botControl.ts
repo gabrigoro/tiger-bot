@@ -15,8 +15,8 @@ if (!process.env.BOT_TOKEN) throw 'Bot token requerido'
 
 const bot = new Telegraf<Context<Update>>(process.env.BOT_TOKEN)
 
-export function sendMessageToUser(user:string, message:string) {
-    bot.telegram.sendMessage(user, message)
+export function sendMessageToUser(userId:number, message:string) {
+    bot.telegram.sendMessage(userId, message)
 }
 
 const broadcastMessage = (message:string) => {

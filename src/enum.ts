@@ -21,8 +21,9 @@ export enum Collections {
 }
 
 export interface User {
-	id: string
-	dateCreated: number
+	id: number
+	name: string
+	dateCreated: string
 }
 
 export enum ErrorCode {

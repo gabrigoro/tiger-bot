@@ -1,20 +1,25 @@
 import { ContextParameter } from "../commands.types"
 import { addNewUser } from "../database/database"
-import { ADMIN, ErrorCode, MINUTE } from "../enum"
+import { ADMIN, ErrorCode } from "../enum"
 import { logger } from "../logger"
+import { getDate, getUserInfo } from "../utils/handlers"
 
 export const start = async (ctx:ContextParameter) => {
-    const newUsername = ctx.chat.id
+	const userInfo = getUserInfo(ctx)
 
-	if (ctx.chat.id === ADMIN) await ctx.reply('Hola administrador')
+	if (userInfo.id === ADMIN) await ctx.reply('Hola administrador')
 	
-	addNewUser(newUsername.toString())
+	addNewUser({
+		id: userInfo.id,
+		dateCreated: getDate(),
+		name: userInfo.name
+	})
 	.then((res) => {
-			ctx.reply('Bienvenido a Finanzas bot 🤠\nNuevo usuario registrado: ' + newUsername)
+			ctx.reply('Bienvenido a Finanzas bot 🤠\nNuevo usuario registrado: ' + userInfo.name)
 		})
 		.catch((err) => {
 			if (err === ErrorCode.Exists) {
-				logger.error(`User ${newUsername} already exists`)
+				logger.error(`User ${userInfo.name} already exists`)
 				return ctx.reply('Ya estas registrado')
 			}
 

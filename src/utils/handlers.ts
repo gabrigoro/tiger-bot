@@ -1,3 +1,6 @@
+import { ContextParameter } from "../commands.types"
+import { User } from "../enum"
+
 /**
  * Devuelve la fecha entera en formato ISO.
  * La diferencia de zona horaria no esta contada.
@@ -17,4 +20,14 @@ export function getDate() {
 	// '2023-03-24 16:08:22.012 GMT-3'
 
 	return timeOffsetDate.trim()
+}
+
+/**
+ * Devuelve la id unica del chat y el nombre completo del usuario del chat
+ */
+export function getUserInfo(ctx:ContextParameter): {id:number, name:string} {
+	return {
+		id: ctx.chat.id,
+		name: `${ctx.from.first_name} ${ctx.from.last_name}`
+	}	
 }

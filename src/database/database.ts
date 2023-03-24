@@ -72,19 +72,20 @@ export const getOwesFromPerson = (username:string) => {
     return getTransactionsFromUser(OperationType.Owe, username)
 }
 
-export const getAllUsers = ():Promise<User[]> => {
-    return fb.getCollection(Collections.Users)
+export const getAllUsers = async ():Promise<User[]> => {
+    const usersList = await fb.getCollection<User>(Collections.Users)
+
+    // convierte la id de string a number
+    return usersList.map((user) => ({ ...user, id: parseInt(user.id) }))
 }
 
-export const addNewUser = async (username:string) => {
+export const addNewUser = async (user:User) => {
     const usersCollection = await getAllUsers()
-    const userExists = usersCollection.some((user) => user.id === username)
+    const userExists = usersCollection.some((u) => u.id === user.id)
 
     if (userExists) throw ErrorCode.Exists
 
-    return fb.upload(Collections.Users, {
-        dateCreated: (new Date()).getTime()
-    }, username)
+    return fb.upload(Collections.Users, user, user.id.toString())
 }
 
 /**
@@ -96,9 +97,9 @@ export const addNewUser = async (username:string) => {
  * @param username '123123123'
  * @param text feedback text
  */
-export async function addNewAnonFeedback(username:string, text:string) {
+export async function addNewAnonFeedback(userId:number, text:string) {
     return fb.upload('feedback', {
-        username, 
+        userId,
         text,
         date: getDate()
     })
