@@ -1,12 +1,12 @@
 import { ContextParameter } from "../commands.types"
 import { addNewUser } from "../database/database"
-import { ErrorCode, MINUTE } from "../enum"
+import { ADMIN, ErrorCode, MINUTE } from "../enum"
 import { logger } from "../logger"
 
 export const start = async (ctx:ContextParameter) => {
     const newUsername = ctx.chat.id
 
-	if (ctx.chat.id === 1174794170) await ctx.reply('Hola administrador')
+	if (ctx.chat.id === ADMIN) await ctx.reply('Hola administrador')
 	
 	addNewUser(newUsername.toString())
 	.then((res) => {

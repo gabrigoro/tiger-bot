@@ -7,6 +7,7 @@ import { Operator } from './operator';
 import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } from './commands.types';
 import { incomeSteps } from './commands/income';
 import { paymentSteps } from './commands/payment';
+import { feedbackSteps } from './commands/feedback';
 
 
 export const help = (ctx:ContextParameter) => {
@@ -84,29 +85,12 @@ Fondos: $${income.total - expenses.total}`
 // }
 
 
-/** Pasos de /feedback */
-const feedbackSteps:SimpleOperation[] = [
-	async function(ctx) {
-		Operator.start(ctx, 'feedback')
-		ctx.reply('Escribi tus comentarios en un solo mensaje:')
-		// addNewAnonFeedback(ctx.chat.id.toString(), ctx.message.text)
-	},
-	async function(ctx) {
-		const feedbackText = ctx.message.text
-		logger.info(`[feedback] ${feedbackText}`)
-		await ctx.reply('Tu mensaje:')
-		await ctx.reply(feedbackText)
-		await ctx.reply('Subiendo feedback')
-		Operator.end(ctx)
-	}
-]
-
 export const allSteps:CommandsStepsList = {
 	payment: paymentSteps,
 	feedback: feedbackSteps,
     income: incomeSteps,
-	broadcast: [(ctx) => {}],
-	subscribe: [(ctx) => {}],
+	broadcast: [async (ctx) => {}],
+	subscribe: [async (ctx) => {}],
 }
 
 /**

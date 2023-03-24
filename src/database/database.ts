@@ -1,5 +1,6 @@
 import fb from './firebase'
 import { Collections, ErrorCode, MONTH, OperationType, Transaction, User, WEEK, YEAR } from '../enum'
+import { getDate } from '../utils/handlers'
 
 const count = (list:Transaction[]) => list.reduce((acc, curr) => acc + curr.amount, 0)
 
@@ -91,5 +92,9 @@ export const addNewUser = async (username:string) => {
  */
 
 export async function addNewAnonFeedback(username:string, text:string) {
-    return fb.upload('feedback', {username, text})
+    return fb.upload('feedback', {
+        username, 
+        text,
+        date: getDate()
+    })
 }

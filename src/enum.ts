@@ -31,6 +31,8 @@ export enum ErrorCode {
 
 export type BotStatus = 'online' | 'offline'
 
+export const ADMIN = 1174794170
+
 export const TIMEOUT = 15000
 
 /** TIME IN MILISECONDS */
