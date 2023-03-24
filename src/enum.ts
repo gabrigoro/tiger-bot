@@ -29,6 +29,10 @@ export enum ErrorCode {
 	Exists
 }
 
+export enum EndReason {
+	OK = 'Ok'
+}
+
 export type BotStatus = 'online' | 'offline'
 
 export const ADMIN = 1174794170

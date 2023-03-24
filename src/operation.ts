@@ -1,5 +1,5 @@
 import { allSteps } from "./commands"
-import { TIMEOUT } from "./enum"
+import { EndReason, TIMEOUT } from "./enum"
 import { logger } from "./logger"
 import { ContextParameter, OperationName } from './commands.types'
 
@@ -43,6 +43,6 @@ export class Operation {
 	end(ctx:ContextParameter, reason?:string) {
 		logger.info(`[operation:${this.username}] Closing ${this.operation}`)
 		this.isActive = false
-		ctx.reply(`Terminando operacion. Razon: ${reason || 'desconocida'}`)
+		if (reason !== EndReason.OK) ctx.reply(`Terminando operacion. Razon: ${reason || 'desconocida'}`)
 	}
 }

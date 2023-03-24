@@ -1,4 +1,5 @@
 import { OperatorStruct } from './commands.types'
+import { EndReason } from './enum'
 import { Operation } from './operation'
 
 /** 
@@ -18,13 +19,13 @@ export const Operator:OperatorStruct = {
 		if (this.buffer[username]?.isActive) this.buffer[username].end(ctx, 'iniciando una nueva')
 		this.buffer[username] = new Operation(username, command)
 	},
-	nextStep(ctx) {
+	async nextStep(ctx) {
 		const username = ctx.chat.id.toString()
 		this.buffer[username].nextStep(ctx)
 	},
-	end(ctx) {
+	end(ctx, reason) {
 		const username = ctx.chat.id.toString()
-		this.buffer[username].end(ctx)
+		this.buffer[username].end(ctx, reason)
 	}
 }
 

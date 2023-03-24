@@ -1,7 +1,7 @@
 import { sendMessageToUser } from "../botControl"
 import { SimpleOperation } from "../commands.types"
 import { addNewAnonFeedback } from "../database/database"
-import { ADMIN } from "../enum"
+import { ADMIN, EndReason } from "../enum"
 import { logger } from "../logger"
 import { Operator } from "../operator"
 
@@ -16,7 +16,8 @@ export const feedbackSteps:SimpleOperation[] = [
 		logger.info(`[feedback] ${feedbackText}`)
 		await ctx.reply('Subiendo feedback')
 		await addNewAnonFeedback(ctx.chat.id.toString(), feedbackText)
-		sendMessageToUser(ADMIN.toString(), feedbackText)
-		Operator.end(ctx)
+		const adminReceipt = `from: ${ctx.from.first_name} ${ctx.from.last_name}\nfeedback: ${feedbackText}`
+		sendMessageToUser(ADMIN.toString(), adminReceipt)
+		Operator.end(ctx, EndReason.OK)
 	}
 ]

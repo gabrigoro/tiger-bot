@@ -94,38 +94,48 @@ export const allSteps:CommandsStepsList = {
 }
 
 /**
- * Lista de comandos visualizados en la interfaz del chat de telegram. 
+ * Lista completa de comandos en la interfaz del chat de telegram. 
  * El atributo `invocator` siempre tiene que empezar con una `/`.
  */
-export const list:CommandType[] = [
+const completeList:CommandType[] = [
     {
         name: 'gastos',
         invocator: '/gastos',
         procedure: gastos,
-        description: 'Anotar un pago'
+        description: 'Anotar un pago',
+        available: false
     },
     {
         name: 'pago',
         invocator: '/pago',
         procedure: allSteps['payment'][0],
-        description: 'Ver gastos'
+        description: 'Ver gastos',
+        available: false
     },
     {
         name: 'ingreso',
         invocator: '/ingreso',
         procedure: allSteps['income'][0],
-        description: 'Anotar un ingreso'
+        description: 'Anotar un ingreso',
+        available: false
     },
     {
         name: 'eliminar',
         invocator: '/eliminar',
         procedure: () => {},
-        description: 'Eliminar una transaccion'
+        description: 'Eliminar una transaccion',
+        available: false
     },
     {
         name: 'feedback',
         invocator: '/feedback',
         procedure: allSteps['feedback'][0],
-        description: 'Enviar comentarios al desarrollador'
+        description: 'Enviar comentarios al desarrollador',
+        available: true
     }
 ]
+
+/**
+ * Lista de comandos disponibles en la interfaz del chat de telegram. 
+ */
+export const list:CommandType[] = completeList.filter((command) => command.available)

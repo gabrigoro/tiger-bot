@@ -1,5 +1,6 @@
 import { Context, NarrowedContext } from 'telegraf'
 import { Message, Update } from 'typegram'
+import { EndReason } from './enum';
 import { Operation } from './operation';
 
 export type ContextParameter = NarrowedContext<Context<Update>, {
@@ -15,6 +16,7 @@ export type CommandType = {
     name: string
     invocator: string
     description: string
+	available: boolean
     procedure: (ctx:ContextParameter) => any
 }
 
@@ -28,5 +30,5 @@ export type OperatorStruct = {
 	}
 	start: (ctx: ContextParameter, command:OperationName) => void
 	nextStep: SimpleOperation
-	end: (ctx: ContextParameter) => void
+	end: (ctx: ContextParameter, reason?: EndReason) => void
 }

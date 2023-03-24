@@ -91,6 +91,11 @@ export const addNewUser = async (username:string) => {
  * SECCION FEEDBACK
  */
 
+/**
+ * Sube feedback del usuario junto con la fecha
+ * @param username '123123123'
+ * @param text feedback text
+ */
 export async function addNewAnonFeedback(username:string, text:string) {
     return fb.upload('feedback', {
         username, 
