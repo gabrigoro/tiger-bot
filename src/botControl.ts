@@ -19,7 +19,7 @@ export function sendMessageToUser(userId:number, message:string) {
     bot.telegram.sendMessage(userId, message)
 }
 
-const broadcastMessage = (message:string) => {
+export const broadcastMessage = (message:string) => {
     getAllUsers().then((users) => {
         for (const user of users) {
             sendMessageToUser(user.id, message)
@@ -41,6 +41,9 @@ export async function startBot():Promise<BotStatus> {
     for (const command of commands.list) {
         bot.command(command.name, command.procedure)
     }
+
+    /** BROADCAST */
+    bot.command('broadcast', commands.allSteps['broadcast'][0])
 
     // bot.on('callback_query', commands.callbackMaster)
     bot.on('text', commands.textReceiver)

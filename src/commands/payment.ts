@@ -3,6 +3,7 @@ import { ContextParameter, SimpleOperation } from "../commands.types"
 import { logger } from "../logger"
 import { Operator } from "../operator"
 import fb from '../database/firebase'
+import { EndReason } from "../enum"
 
 /** Pasos de /payment */
 export const paymentSteps:SimpleOperation[] = [
@@ -49,7 +50,7 @@ export const paymentSteps:SimpleOperation[] = [
 					})
 				} catch (err) {
 					logger.error('Firebase push error')
-					Operator.end(ctx)
+					Operator.end(ctx, EndReason.OK)
 					return ctx.reply('Hubo un error')
 				}
 				const gastos = await fb.getCollection<{monto:number, nombre:string}>('gasto')

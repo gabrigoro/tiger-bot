@@ -8,6 +8,8 @@ import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } fro
 import { incomeSteps } from './commands/income';
 import { paymentSteps } from './commands/payment';
 import { feedbackSteps } from './commands/feedback';
+import { broadcastMessage } from './botControl';
+import { EndReason } from './enum';
 
 
 export const help = (ctx:ContextParameter) => {
@@ -84,12 +86,25 @@ Fondos: $${income.total - expenses.total}`
 //     }]]))
 // }
 
+const broadcastSteps:SimpleOperation[] = [
+    async function(ctx) {
+		Operator.start(ctx, 'broadcast')
+
+		ctx.reply('Mensaje para broadcastear a todos los usuarios:')
+	},
+    async function(ctx) {
+        const message = `🔞 Transmision del 🅰dmin a todos los usuarios 🔞\n${ctx.message.text}`
+        broadcastMessage(message)
+        Operator.end(ctx, EndReason.OK)
+    }
+]
+
 
 export const allSteps:CommandsStepsList = {
 	payment: paymentSteps,
 	feedback: feedbackSteps,
     income: incomeSteps,
-	broadcast: [async (ctx) => {}],
+	broadcast: broadcastSteps,
 	subscribe: [async (ctx) => {}],
 }
 
@@ -105,7 +120,7 @@ const completeList:CommandType[] = [
         description: 'Anotar un pago',
         available: false
     },
-    {
+    { 
         name: 'pago',
         invocator: '/pago',
         procedure: allSteps['payment'][0],
