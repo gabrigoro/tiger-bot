@@ -17,17 +17,17 @@ export const startTimer = (cb: ()=>unknown) => {
  * Se hace escencialmente para individualizar las operaciones entre usuarios.
  */
 export class Operation {
-	username: string
+	userId: number
 	operation: OperationName
 	step: number
 	isActive: boolean
 
-	constructor(username:string, operation:OperationName) {
-		this.username = username
+	constructor(userId:number, operation:OperationName) {
+		this.userId = userId
 		this.operation = operation
 		this.isActive = true
 		this.step = 0
-		logger.info(`[operation:${this.username}] Starting new ${this.operation}`)
+		logger.info(`[operation:${this.userId}] Starting new ${this.operation}`)
 		// deberia empezar un timeout por aca
 	}
 
@@ -36,12 +36,12 @@ export class Operation {
 		const selectedCommand = allSteps[this.operation]
 		const currentCommand = selectedCommand[this.step]
 
-		logger.info(`[operation:${this.username}] ${this.operation} step: ${this.step}`)
+		logger.info(`[operation:${this.userId}] ${this.operation} step: ${this.step}`)
 		currentCommand(ctx)
 	}
 
 	end(ctx:ContextParameter, reason?:string) {
-		logger.info(`[operation:${this.username}] Closing ${this.operation}`)
+		logger.info(`[operation:${this.userId}] Closing ${this.operation}`)
 		this.isActive = false
 		if (reason !== EndReason.OK) ctx.reply(`Terminando operacion. Razon: ${reason || 'desconocida'}`)
 	}

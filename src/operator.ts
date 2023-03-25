@@ -1,6 +1,13 @@
-import { OperatorStruct } from './commands.types'
-import { EndReason } from './enum'
+import { ContextParameter, OperatorStruct } from './commands.types'
+import { EndReason, User } from './enum'
+import { logger } from './logger'
 import { Operation } from './operation'
+import { getUserInfo } from './utils/handlers'
+
+/** Comando para facilitar el log del operator */
+const operatorLogger = (step:string, data:object) => {
+	return logger.info(`[operator:${step}] ${JSON.stringify(data)}`)
+}
 
 /** 
  * Operador de comandos
@@ -15,17 +22,20 @@ export const Operator:OperatorStruct = {
 	 */
 	buffer: {},
 	start(ctx, command) {
-		const username = ctx.chat.id.toString()
-		if (this.buffer[username]?.isActive) this.buffer[username].end(ctx, 'iniciando una nueva')
-		this.buffer[username] = new Operation(username, command)
+		const user = getUserInfo(ctx)
+		operatorLogger('start', {command, user})
+		if (this.buffer[user.id]?.isActive) this.buffer[user.id].end(ctx, 'iniciando una nueva')
+		this.buffer[user.id] = new Operation(user.id, command)
 	},
 	async nextStep(ctx) {
-		const username = ctx.chat.id.toString()
-		this.buffer[username].nextStep(ctx)
+		const user = getUserInfo(ctx)
+		operatorLogger('nextStep', {user})
+		this.buffer[user.id].nextStep(ctx)
 	},
 	end(ctx, reason) {
-		const username = ctx.chat.id.toString()
-		this.buffer[username].end(ctx, reason)
+		const user = getUserInfo(ctx)
+		operatorLogger('end', {buffer:this.buffer, user, reason})
+		this.buffer[user.id].end(ctx, reason)
 	}
 }
 

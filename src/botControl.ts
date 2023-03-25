@@ -6,8 +6,10 @@ import * as commands from './commands'
 import { start } from './commands/start'
 import { version } from '../package.json'
 import { logger } from './logger'
-import { BotStatus } from './enum'
+import { ADMIN, BotStatus } from './enum'
 dotenv.config()
+
+//TODO : hacer un catch general del error para que se guarde en el log
 
 let botStatus:BotStatus = 'offline'
 
@@ -44,6 +46,13 @@ export async function startBot():Promise<BotStatus> {
 
     /** BROADCAST */
     bot.command('broadcast', commands.allSteps['broadcast'][0])
+
+    /** APAGADO DE EMERGENCIA */
+    bot.command('purge', (ctx) => {
+        if (ctx.chat.id === ADMIN) {
+            process.exit()
+        }
+    })
 
     // bot.on('callback_query', commands.callbackMaster)
     bot.on('text', commands.textReceiver)
