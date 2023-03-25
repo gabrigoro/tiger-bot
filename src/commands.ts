@@ -9,7 +9,7 @@ import { incomeSteps } from './commands/income';
 import { paymentSteps } from './commands/payment';
 import { feedbackSteps } from './commands/feedback';
 import { broadcastMessage } from './botControl';
-import { EndReason } from './enum';
+import { ADMIN, EndReason } from './enum';
 
 
 export const help = (ctx:ContextParameter) => {
@@ -88,6 +88,7 @@ Fondos: $${income.total - expenses.total}`
 
 const broadcastSteps:SimpleOperation[] = [
     async function(ctx) {
+        if (ctx.chat.id !== ADMIN) return
 		Operator.start(ctx, 'broadcast')
 
 		ctx.reply('Mensaje para broadcastear a todos los usuarios:')
