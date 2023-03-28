@@ -47,7 +47,7 @@ export const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update
 }
 
 export const textReceiver = async (ctx:ContextParameter) => {
-    Operator.nextStep(ctx)
+    if (Operator.buffer[ctx.chat.id]?.isActive) Operator.nextStep(ctx)
     return
 }
 
