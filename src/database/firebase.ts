@@ -10,12 +10,12 @@ const app = initializeApp({
 	projectId: process.env.PROJECT_ID,
 	storageBucket: process.env.STORAGE_BUCKET,
 	messagingSenderId: process.env.MESSAGING_SENDER_ID,
-	appId: process.env.APP_ID
+	appId: process.env.APP_ID,
 })
 
 const database = getFirestore(app)
 
-const upload = (collectionName:string, document:object, id?:string) => {
+const upload = (collectionName: string, document: object, id?: string) => {
 	/** Testing Database */
 	// if (process.env.VITEST) return testUpload(collectionName, document, id='')
 
@@ -26,7 +26,7 @@ const upload = (collectionName:string, document:object, id?:string) => {
 	return addDoc(collection(database, collectionName), document)
 }
 
-const getCollection = async <T>(collectionName:string) => {
+const getCollection = async <T>(collectionName: string) => {
 	const col = collection(database, collectionName)
 	const snapshot = await getDocs(col)
 	return snapshot.docs.map((doc) => {
@@ -35,7 +35,7 @@ const getCollection = async <T>(collectionName:string) => {
 	})
 }
 
-const getFilteredCollection = async (collectionName:string, field:string, value:string) => {
+const getFilteredCollection = async (collectionName: string, field: string, value: string) => {
 	const col = collection(database, collectionName)
 	const q = query(col, where(field, '==', value))
 	const snapshot = await getDocs(q)
@@ -45,10 +45,10 @@ const getFilteredCollection = async (collectionName:string, field:string, value:
 	})
 }
 
-const update = async (collection:Collections, document:string, field:string, value:any) => {
+const update = async (collection: Collections, document: string, field: string, value: any) => {
 	const ref = doc(database, collection, document)
 	return updateDoc(ref, {
-		[field]: value
+		[field]: value,
 	})
 }
 
@@ -56,5 +56,5 @@ export default {
 	getCollection,
 	getFilteredCollection,
 	update,
-	upload
+	upload,
 }

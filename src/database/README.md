@@ -16,6 +16,7 @@
 - userId [string]: Id del usuario
 
 ### pagos
+
 - id [string]: Id generado por firebase
 - amount [int]: Monto total del pago
 - category [string]: Categoria del pago
@@ -24,6 +25,7 @@
 - description [string]: Descripcion o destino del pago
 
 ### ingresos
+
 - id [string]: Id generado por firebase
 - amount [int]: Monto total del ingreso
 - date [string]: Fecha en formato ISO

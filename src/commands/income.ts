@@ -1,13 +1,13 @@
-import { Markup } from "telegraf"
-import { ContextParameter, SimpleOperation } from "../commands.types"
-import { Operator } from "../operator"
+import { Markup } from 'telegraf'
+import { ContextParameter, SimpleOperation } from '../commands.types'
+import { Operator } from '../operator'
 
-export const incomeSteps:SimpleOperation[] = [
-	async function(ctx) {
+export const incomeSteps: SimpleOperation[] = [
+	async function (ctx) {
 		Operator.start(ctx, 'income')
 
 		ctx.reply('Estos son tus ultimos ingresos:... work in progress')
-	}
+	},
 ]
 
 /** REMOVER CUANDO RESUELVA EL CALLBACK */

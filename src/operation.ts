@@ -1,11 +1,11 @@
-import { allSteps } from "./commands"
-import { EndReason, TIMEOUT } from "./enum"
-import { logger } from "./logger"
+import { allSteps } from './commands'
+import { EndReason, TIMEOUT } from './enum'
+import { logger } from './logger'
 import { ContextParameter, OperationName } from './commands.types'
 
-let timeout:NodeJS.Timeout
+let timeout: NodeJS.Timeout
 
-export const startTimer = (cb: ()=>unknown) => {
+export const startTimer = (cb: () => unknown) => {
 	timeout = setTimeout(() => {
 		cb()
 	}, TIMEOUT)
@@ -13,7 +13,7 @@ export const startTimer = (cb: ()=>unknown) => {
 
 /**
  * Instancia de operacion temporal. Se crea al iniciar los pasos de cualquier comando.
- * 
+ *
  * Se hace escencialmente para individualizar las operaciones entre usuarios.
  */
 export class Operation {
@@ -22,7 +22,7 @@ export class Operation {
 	step: number
 	isActive: boolean
 
-	constructor(userId:number, operation:OperationName) {
+	constructor(userId: number, operation: OperationName) {
 		this.userId = userId
 		this.operation = operation
 		this.isActive = true
@@ -31,7 +31,7 @@ export class Operation {
 		// deberia empezar un timeout por aca
 	}
 
-	async nextStep(ctx:ContextParameter) {
+	async nextStep(ctx: ContextParameter) {
 		this.step++
 		const selectedCommand = allSteps[this.operation]
 		const currentCommand = selectedCommand[this.step]
@@ -40,7 +40,7 @@ export class Operation {
 		currentCommand(ctx)
 	}
 
-	end(ctx:ContextParameter, reason?:string) {
+	end(ctx: ContextParameter, reason?: string) {
 		logger.info(`[operation:${this.userId}] Closing ${this.operation}`)
 		this.isActive = false
 		if (reason !== EndReason.OK) ctx.reply(`Terminando operacion. Razon: ${reason || 'desconocida'}`)

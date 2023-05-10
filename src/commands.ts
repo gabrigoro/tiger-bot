@@ -1,62 +1,61 @@
 import { Telegraf, Context, Markup, NarrowedContext } from 'telegraf'
 import { CallbackQuery, Update } from 'typegram'
-import { getExpenses, getIncome } from './database/database';
+import { getExpenses, getIncome } from './database/database'
 import fb from './database/firebase'
-import { logger } from './logger';
-import { Operator } from './operator';
-import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } from './commands.types';
-import { incomeSteps } from './commands/income';
-import { paymentSteps } from './commands/payment';
-import { feedbackSteps } from './commands/feedback';
-import { broadcastMessage } from './botControl';
-import { ADMIN, EndReason } from './enum';
-import { dolarSteps } from './commands/dolar';
+import { logger } from './logger'
+import { Operator } from './operator'
+import { CommandsStepsList, CommandType, ContextParameter, SimpleOperation } from './commands.types'
+import { incomeSteps } from './commands/income'
+import { paymentSteps } from './commands/payment'
+import { feedbackSteps } from './commands/feedback'
+import { broadcastMessage } from './botControl'
+import { ADMIN, EndReason } from './enum'
+import { dolarSteps } from './commands/dolar'
 
-
-export const help = (ctx:ContextParameter) => {
+export const help = (ctx: ContextParameter) => {
 	return ctx.reply('Nada de ayuda por ahora')
 }
 
-export const settings = (ctx:ContextParameter) => {
+export const settings = (ctx: ContextParameter) => {
 	return ctx.reply('Ninguna configuracion por ahora')
 }
 
-export const callbackMaster = async (ctx:NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
-    return
-    /** TODO: CALLBACK */
-    // const { data } = (await ctx.callbackQuery) as {data:string}
+export const callbackMaster = async (ctx: NarrowedContext<Context<Update>, Update.CallbackQueryUpdate<CallbackQuery>>) => {
+	return
+	/** TODO: CALLBACK */
+	// const { data } = (await ctx.callbackQuery) as {data:string}
 
 	// /** Recibe una categoria */
-    // if (data !== 'guardar') {
-    //     increaseStep()
-    //     setCategory(data)
-    //     return ctx.reply('Ingresa el monto', Markup.forceReply())
-    // }
-    
-    // /** Guardar en base de datos */
-    // if (data === 'guardar') {
-    //     const buildTransaction = getTransaction()
+	// if (data !== 'guardar') {
+	//     increaseStep()
+	//     setCategory(data)
+	//     return ctx.reply('Ingresa el monto', Markup.forceReply())
+	// }
+
+	// /** Guardar en base de datos */
+	// if (data === 'guardar') {
+	//     const buildTransaction = getTransaction()
 	// 	closeOperation()
-    //     addTransaction(buildTransaction).then(() => {
-    //         return ctx.reply('💸')
-    //     }).catch((reason) => {
-    //         console.log('Failed uploading', reason)
-    //         return ctx.reply('Hubo un error guardando tu operacion')
-    //     })
+	//     addTransaction(buildTransaction).then(() => {
+	//         return ctx.reply('💸')
+	//     }).catch((reason) => {
+	//         console.log('Failed uploading', reason)
+	//         return ctx.reply('Hubo un error guardando tu operacion')
+	//     })
 
-    // }
+	// }
 }
 
-export const textReceiver = async (ctx:ContextParameter) => {
-    if (Operator.buffer[ctx.chat.id]?.isActive) Operator.nextStep(ctx)
-    return
+export const textReceiver = async (ctx: ContextParameter) => {
+	if (Operator.buffer[ctx.chat.id]?.isActive) Operator.nextStep(ctx)
+	return
 }
 
-export const gastos = async (ctx:ContextParameter) => {
+export const gastos = async (ctx: ContextParameter) => {
 	const username = ctx.chat.id.toString()
 	const expenses = await getExpenses(username)
 	const income = await getIncome(username)
-		
+
 	const textBody = `Gastos
 Ultimos 7 dias: $${expenses.lastWeek}
 Ultimos 30 dias: $${expenses.lastMonth}
@@ -87,80 +86,79 @@ Fondos: $${income.total - expenses.total}`
 //     }]]))
 // }
 
-const broadcastSteps:SimpleOperation[] = [
-    async function(ctx) {
-        if (ctx.chat.id !== ADMIN) return
+const broadcastSteps: SimpleOperation[] = [
+	async function (ctx) {
+		if (ctx.chat.id !== ADMIN) return
 		Operator.start(ctx, 'broadcast')
 
 		ctx.reply('Mensaje para broadcastear a todos los usuarios:')
 	},
-    async function(ctx) {
-        const message = `🔞 Transmision del 🅰dmin a todos los usuarios 🔞\n${ctx.message.text}`
-        broadcastMessage(message)
-        Operator.end(ctx, EndReason.OK)
-    }
+	async function (ctx) {
+		const message = `🔞 Transmision del 🅰dmin a todos los usuarios 🔞\n${ctx.message.text}`
+		broadcastMessage(message)
+		Operator.end(ctx, EndReason.OK)
+	},
 ]
 
-
-export const allSteps:CommandsStepsList = {
+export const allSteps: CommandsStepsList = {
 	payment: paymentSteps,
 	feedback: feedbackSteps,
-    income: incomeSteps,
+	income: incomeSteps,
 	broadcast: broadcastSteps,
-    dolar: dolarSteps,
+	dolar: dolarSteps,
 	subscribe: [async (ctx) => {}],
 }
 
 /**
- * Lista completa de comandos en la interfaz del chat de telegram. 
+ * Lista completa de comandos en la interfaz del chat de telegram.
  * El atributo `invocator` siempre tiene que empezar con una `/`.
  */
-const completeList:CommandType[] = [
-    {
-        name: 'gastos',
-        invocator: '/gastos',
-        procedure: gastos,
-        description: 'Anotar un pago',
-        available: false
-    },
-    { 
-        name: 'pago',
-        invocator: '/pago',
-        procedure: allSteps['payment'][0],
-        description: 'Ver gastos',
-        available: false
-    },
-    {
-        name: 'ingreso',
-        invocator: '/ingreso',
-        procedure: allSteps['income'][0],
-        description: 'Anotar un ingreso',
-        available: false
-    },
-    {
-        name: 'eliminar',
-        invocator: '/eliminar',
-        procedure: () => {},
-        description: 'Eliminar una transaccion',
-        available: false
-    },
-    {
-        name: 'feedback',
-        invocator: '/feedback',
-        procedure: allSteps['feedback'][0],
-        description: 'Enviar comentarios al desarrollador',
-        available: true
-    },
-    {
-        name: 'dolar',
-        invocator: '/dolar',
-        procedure: allSteps['dolar'][0],
-        description: 'Suscribirse al valor del dolar blue 10:00am',
-        available: true
-    }
+const completeList: CommandType[] = [
+	{
+		name: 'gastos',
+		invocator: '/gastos',
+		procedure: gastos,
+		description: 'Anotar un pago',
+		available: false,
+	},
+	{
+		name: 'pago',
+		invocator: '/pago',
+		procedure: allSteps['payment'][0],
+		description: 'Ver gastos',
+		available: false,
+	},
+	{
+		name: 'ingreso',
+		invocator: '/ingreso',
+		procedure: allSteps['income'][0],
+		description: 'Anotar un ingreso',
+		available: false,
+	},
+	{
+		name: 'eliminar',
+		invocator: '/eliminar',
+		procedure: () => {},
+		description: 'Eliminar una transaccion',
+		available: false,
+	},
+	{
+		name: 'feedback',
+		invocator: '/feedback',
+		procedure: allSteps['feedback'][0],
+		description: 'Enviar comentarios al desarrollador',
+		available: true,
+	},
+	{
+		name: 'dolar',
+		invocator: '/dolar',
+		procedure: allSteps['dolar'][0],
+		description: 'Suscribirse al valor del dolar blue 10:00am',
+		available: true,
+	},
 ]
 
 /**
- * Lista de comandos disponibles en la interfaz del chat de telegram. 
+ * Lista de comandos disponibles en la interfaz del chat de telegram.
  */
-export const list:CommandType[] = completeList.filter((command) => command.available)
+export const list: CommandType[] = completeList.filter((command) => command.available)

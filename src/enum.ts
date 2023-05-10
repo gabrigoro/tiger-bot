@@ -3,7 +3,7 @@ export enum OperationType {
 	Debt = 'deuda',
 	Owe = 'debo',
 	Plan = 'plan',
-	Income = 'ingreso'
+	Income = 'ingreso',
 }
 
 export interface Transaction {
@@ -17,7 +17,7 @@ export interface Transaction {
 }
 export enum Collections {
 	Users = 'usuarios',
-	Payments = 'pagos'
+	Payments = 'pagos',
 }
 
 export interface User {
@@ -28,11 +28,11 @@ export interface User {
 }
 
 export enum ErrorCode {
-	Exists
+	Exists,
 }
 
 export enum EndReason {
-	OK = 'Ok'
+	OK = 'Ok',
 }
 
 export type BotStatus = 'online' | 'offline'

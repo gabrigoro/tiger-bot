@@ -1,43 +1,44 @@
-import { getBotStatus, startBot, stopBot } from "./src/botControl"
+import { getBotStatus, startBot, stopBot } from './src/botControl'
 import express from 'express'
 import { readFile } from 'fs'
-import { logger } from "./src/logger"
+import { logger } from './src/logger'
 
 const app = express()
 
 if (process.env.ENVIRONMENT === 'development') startBot()
 
 app.get('/', (req, res) => {
-    // procesar un SSR para mostar la pagina
-    res.contentType('html')
-    readFile('./public/index.html', (err, data) => {
-        if (err) throw err
-        res.send(data)
-    })
+	// procesar un SSR para mostar la pagina
+	res.contentType('html')
+	readFile('./public/index.html', (err, data) => {
+		if (err) throw err
+		res.send(data)
+	})
 })
 
 app.get('/status', (req, res) => {
-    const status = getBotStatus()
-    res.send({ status })
+	const status = getBotStatus()
+	res.send({ status })
 })
 
 // startBot()
 app.get('/start', (req, res) => {
-    if (getBotStatus() === 'online') return res.send({ status })
-    startBot().then((status) => {
-        res.send({status})
-    })
+	if (getBotStatus() === 'online') return res.send({ status })
+	startBot().then((status) => {
+		res.send({ status })
+	})
 })
 
 app.get('/stop', (req, res) => {
-    stopBot().then((status) => {
-        res.send({status})
-    })
+	stopBot().then((status) => {
+		res.send({ status })
+	})
 })
 
-
-app.listen(process.env.PORT, () => {
-    logger.info(`[express] listening on ${process.env.PORT}`)
-}).on('error', (err) => {
-    logger.error(`[express] ${err.message}`)
-})
+app
+	.listen(process.env.PORT, () => {
+		logger.info(`[express] listening on ${process.env.PORT}`)
+	})
+	.on('error', (err) => {
+		logger.error(`[express] ${err.message}`)
+	})

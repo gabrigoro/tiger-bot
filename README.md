@@ -1,8 +1,10 @@
 ### Environment
-BOT_TOKEN="*"
-API_KEY="*"
+
+BOT*TOKEN="*"
+API*KEY="*"
 
 ### Usar bot
+
 ```bash
 npm start
 curl http://localhost:3001/start
