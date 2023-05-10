@@ -7,6 +7,8 @@ import { start } from './commands/start'
 import { version } from '../package.json'
 import { logger } from './logger'
 import { ADMIN, BotStatus } from './enum'
+import getDolarValue from './dolarAPI'
+import { getDate } from './utils/handlers'
 dotenv.config()
 
 //TODO : hacer un catch general del error para que se guarde en el log
@@ -28,6 +30,28 @@ export const broadcastMessage = (message:string) => {
         }
     })
 }
+
+/**
+ * TODO: mover de lugar, molesta aca
+ */
+export const broadcastDolarValue = async (hour = 10) => {
+    const allUsers = await getAllUsers()
+    const dolarValue = await getDolarValue()
+    allUsers.map((user) => {
+        if (user.dolar) sendMessageToUser(user.id, `Dolar: $${dolarValue}`)
+    })
+}
+
+const globalInterval = setInterval(() => {
+    const now = new Date()
+    const h = now.getHours()
+    const m = now.getMinutes()
+
+    // broadcast a las 10
+    if (h === 10 && m === 0) {
+        broadcastDolarValue()
+    }
+}, 60 * 1000 /* 1 minuto */)
 
 export async function startBot():Promise<BotStatus> {
     /** Emitir la nueva version a todos los chats */
@@ -101,12 +125,14 @@ export async function stopBot() {
     logger.info('Stopping bot')
     try {
         bot.stop()
+        clearInterval(globalInterval)
     } catch (error) {
         logger.error('Error stopping bot')
     }
     return botStatus
 }
 
+/** @returns "online" | "offline" {@link BotStatus} */
 export function getBotStatus() {
     return botStatus
 }

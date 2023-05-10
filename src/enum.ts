@@ -24,6 +24,7 @@ export interface User {
 	id: number
 	name: string
 	dateCreated: string
+	dolar: boolean
 }
 
 export enum ErrorCode {

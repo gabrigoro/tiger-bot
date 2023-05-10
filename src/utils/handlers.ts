@@ -1,5 +1,4 @@
 import { ContextParameter } from "../commands.types"
-import { User } from "../enum"
 
 /**
  * Devuelve la fecha entera en formato ISO.

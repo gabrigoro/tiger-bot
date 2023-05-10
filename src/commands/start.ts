@@ -12,7 +12,8 @@ export const start = async (ctx:ContextParameter) => {
 	addNewUser({
 		id: userInfo.id,
 		dateCreated: getDate(),
-		name: userInfo.name
+		name: userInfo.name,
+		dolar: false
 	})
 	.then((res) => {
 			ctx.reply('Bienvenido a Finanzas bot 🤠\nNuevo usuario registrado: ' + userInfo.name)

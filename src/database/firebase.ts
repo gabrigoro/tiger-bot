@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
-import { addDoc, collection, doc, getDocs, getFirestore, query, setDoc, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDocs, getFirestore, query, setDoc, updateDoc, where } from 'firebase/firestore'
 import dotenv from 'dotenv'
+import { Collections } from '../enum'
 dotenv.config()
 
 const app = initializeApp({
@@ -44,8 +45,16 @@ const getFilteredCollection = async (collectionName:string, field:string, value:
 	})
 }
 
+const update = async (collection:Collections, document:string, field:string, value:any) => {
+	const ref = doc(database, collection, document)
+	return updateDoc(ref, {
+		[field]: value
+	})
+}
+
 export default {
 	getCollection,
 	getFilteredCollection,
+	update,
 	upload
 }

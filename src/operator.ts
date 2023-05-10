@@ -1,5 +1,4 @@
 import { ContextParameter, OperatorStruct } from './commands.types'
-import { EndReason, User } from './enum'
 import { logger } from './logger'
 import { Operation } from './operation'
 import { getUserInfo } from './utils/handlers'

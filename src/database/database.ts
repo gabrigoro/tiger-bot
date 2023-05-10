@@ -1,6 +1,7 @@
 import fb from './firebase'
 import { Collections, ErrorCode, MONTH, OperationType, Transaction, User, WEEK, YEAR } from '../enum'
 import { getDate } from '../utils/handlers'
+import { getBotStatus } from '../botControl'
 
 const count = (list:Transaction[]) => list.reduce((acc, curr) => acc + curr.amount, 0)
 
@@ -103,4 +104,30 @@ export async function addNewAnonFeedback(userId:number, text:string) {
         text,
         date: getDate()
     })
+}
+
+/**
+ * SUSCRIPCIONES
+ */
+
+/**
+ * Intercala la suscripcion al valor del dolar del {@link User}
+ * @returns Nuevo estado de suscripcion
+ */
+export async function toggleDolarSubscriptionOfUser(userId:number):Promise<boolean> {
+    const subscribed = await isUserSubscribedToDolar(userId)
+    await fb.update(Collections.Users, userId.toString(), 'dolar', !subscribed)
+    console.log('toggleDolarSubscriptionOfUser', !subscribed)
+    return !subscribed
+}
+
+/**
+ * Realiza un llamado a la base de datos para devolver el estado de la suscripcion al valor del dolar
+ */
+export async function isUserSubscribedToDolar(userId:number):Promise<boolean> {
+    const users = await fb.getCollection(Collections.Users) as User[]
+    const user = users.find((u) => u.id /** u.id es string */ == userId)
+    console.log('user: ', users, userId, user)
+    console.log('isUserSubscribedToDolar', user!.dolar)
+    return user!.dolar
 }

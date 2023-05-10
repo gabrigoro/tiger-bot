@@ -5,6 +5,8 @@ import { logger } from "./src/logger"
 
 const app = express()
 
+if (process.env.ENVIRONMENT === 'development') startBot()
+
 app.get('/', (req, res) => {
     // procesar un SSR para mostar la pagina
     res.contentType('html')

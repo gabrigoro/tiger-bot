@@ -10,6 +10,7 @@ import { paymentSteps } from './commands/payment';
 import { feedbackSteps } from './commands/feedback';
 import { broadcastMessage } from './botControl';
 import { ADMIN, EndReason } from './enum';
+import { dolarSteps } from './commands/dolar';
 
 
 export const help = (ctx:ContextParameter) => {
@@ -106,6 +107,7 @@ export const allSteps:CommandsStepsList = {
 	feedback: feedbackSteps,
     income: incomeSteps,
 	broadcast: broadcastSteps,
+    dolar: dolarSteps,
 	subscribe: [async (ctx) => {}],
 }
 
@@ -147,6 +149,13 @@ const completeList:CommandType[] = [
         invocator: '/feedback',
         procedure: allSteps['feedback'][0],
         description: 'Enviar comentarios al desarrollador',
+        available: true
+    },
+    {
+        name: 'dolar',
+        invocator: '/dolar',
+        procedure: allSteps['dolar'][0],
+        description: 'Suscribirse al valor del dolar blue 10:00am',
         available: true
     }
 ]
