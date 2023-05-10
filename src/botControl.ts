@@ -54,6 +54,13 @@ export async function startBot():Promise<BotStatus> {
         }
     })
 
+    /** Enviar lista de usuarios */
+    bot.command('users', (ctx) => {
+        if (ctx.chat.id === ADMIN) {
+            getAllUsers().then((users) => users.reduce((acc,curr) => acc + `${curr.id} ${curr.name}\n`, '')).then((users) => ctx.reply(users))
+        }
+    })
+
     // bot.on('callback_query', commands.callbackMaster)
     bot.on('text', commands.textReceiver)
     bot.on('sticker', ctx => ctx.reply('No me envies stickers no los entiendo'))
