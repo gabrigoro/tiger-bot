@@ -4,12 +4,51 @@
 		{
 			"type": "npm",
 			"script": "start",
-			"label": "Development host",
+			"label": "Development",
 			"options": {
 				"env": {}
 			},
 			"icon": {
-				"color": "terminal.ansiYellow"
+				"color": "terminal.ansiYellow",
+				"id": "beaker"
+			}
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"label": "Compilar",
+			"icon": {
+				"color": "terminal.ansiRed",
+				"id": "symbol-variable"
+			}
+		},
+		{
+			"type": "docker-build",
+			"dockerBuild": {
+				"tag": "franelfers/tiger:latest",
+				"dockerfile": "${workspaceFolder}/Dockerfile",
+				"context": "${workspaceFolder}"
+			},
+			"label": "Docker build",
+			"icon": {
+				"color": "terminal.ansiBlack",
+				"id": "save-as"
+			}
+		},
+		{
+			"type": "docker-run",
+			"dockerRun": {
+				"image": "franelfers/tiger:latest",
+				"ports": [{ "containerPort": 3000, "hostPort": 3000 }],
+				"remove": true,
+				"envFiles": ["${workspaceFolder}/.env"],
+				"containerName": "aa"
+			},
+			"label": "Docker Run",
+			"runOptions": { "instanceLimit": 1 },
+			"icon": {
+				"id": "symbol-constructor",
+				"color": "terminal.ansiBlue"
 			}
 		}
 	]

@@ -18,11 +18,8 @@ RUN npm ci --only=production
 # Y solo copiar los archivos necesarios
 COPY --chown=node:node ./dist ./dist
 
-# remover
-COPY .env ./
-
 ENV PORT 3000
 
 EXPOSE $PORT
 
-CMD ["node","dist/index.js"]
+ENTRYPOINT ["node","dist/index.js"]
