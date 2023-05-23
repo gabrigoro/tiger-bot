@@ -2,6 +2,7 @@ import { SimpleOperation } from '../commands.types'
 import { Operator } from '../operator'
 import { EndReason } from '../enum'
 import { toggleDolarSubscriptionOfUser } from '../database/database'
+import { logger } from '../logger'
 
 /** Pasos de /dolar */
 export const dolarSteps: SimpleOperation[] = [
@@ -9,7 +10,7 @@ export const dolarSteps: SimpleOperation[] = [
 		Operator.start(ctx, 'dolar')
 		const subscribed = await toggleDolarSubscriptionOfUser(ctx.chat.id)
 
-		console.log('-------------', subscribed)
+		logger.info('[debug] Subscribed to dolar: ' + subscribed)
 		if (subscribed) {
 			ctx.reply('Estas suscrito al valor del dolar, manda el comando de nuevo para cancelar la suscripcion')
 		} else {

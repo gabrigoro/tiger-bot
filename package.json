@@ -12,9 +12,12 @@
 		"docker:push": "docker push franelfers/tiger"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Francisco Elfers",
 	"license": "ISC",
 	"description": "",
+	"repository": {
+		"url": "https://github.com/FranElfers/tiger-bot"
+	},
 	"dependencies": {
 		"dotenv": "^16.0.3",
 		"express": "^4.18.2",

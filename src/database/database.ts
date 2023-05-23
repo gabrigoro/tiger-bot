@@ -117,7 +117,6 @@ export async function addNewAnonFeedback(userId: number, text: string) {
 export async function toggleDolarSubscriptionOfUser(userId: number): Promise<boolean> {
 	const subscribed = await isUserSubscribedToDolar(userId)
 	await fb.update(Collections.Users, userId.toString(), 'dolar', !subscribed)
-	console.log('toggleDolarSubscriptionOfUser', !subscribed)
 	return !subscribed
 }
 
@@ -127,7 +126,5 @@ export async function toggleDolarSubscriptionOfUser(userId: number): Promise<boo
 export async function isUserSubscribedToDolar(userId: number): Promise<boolean> {
 	const users = (await fb.getCollection(Collections.Users)) as User[]
 	const user = users.find((u) => u.id /** u.id es string */ == userId)
-	console.log('user: ', users, userId, user)
-	console.log('isUserSubscribedToDolar', user!.dolar)
 	return user!.dolar
 }
