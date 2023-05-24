@@ -23,7 +23,7 @@ app.get('/status', (req, res) => {
 
 // startBot()
 app.get('/start', (req, res) => {
-	if (getBotStatus() === 'online') return res.send({ status })
+	if (getBotStatus() === 'online') return res.send({ status: getBotStatus() })
 	startBot().then((status) => {
 		res.send({ status })
 	})
