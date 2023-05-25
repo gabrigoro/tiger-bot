@@ -40,7 +40,7 @@ export class Operation {
 		if (currentCommand) {
   		currentCommand(ctx);
 		} else {
-  		logger_1.logger.error(`[operation:${this.userId}] Invalid command step: ${this.step}`);
+  		logger.error(`[operation:${this.userId}] Invalid command step: ${this.step}`);
 		}
 	}
 
