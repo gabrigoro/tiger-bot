@@ -37,7 +37,12 @@ export class Operation {
 		const currentCommand = selectedCommand[this.step]
 
 		logger.info(`[operation:${this.userId}] ${this.operation} step: ${this.step}`)
-		currentCommand(ctx)
+		if (currentCommand) {
+ 		 currentCommand(ctx);
+		}
+		else {
+  		logger_1.logger.error(`[operation:${this.userId}] Invalid command step: ${this.step}`);
+		}
 	}
 
 	end(ctx: ContextParameter, reason?: string) {
